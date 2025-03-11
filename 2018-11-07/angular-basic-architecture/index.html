@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html  lang=zh-CN>
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  
+    
+    <link rel="shortcut icon" href="/images/favicon.ico ">
+    
+    
+    <link rel="icon" type="image/png" href="/images/favicon-android.png " sizes="192x192">
+    
+    
+    <link rel="apple-touch-icon" href="/images/favicon-apple.png " sizes="180x180">
+    
+  
+  <!-- title -->
+  <title>Shio&#39;s Psycology Life Angular学习笔记：应用基础架构 </title>
+  <!-- styles -->
+  <!-- styles -->
+
+<link rel="stylesheet" href="/styles/global.css">
+
+  <!-- rss -->
+  
+  <link rel="alternate" href="/atom.xml" title="Shio&#39;s Psycology Life" type="application/atom+xml" />
+  
+<meta name="generator" content="Hexo 4.2.1"></head>
+  <body>
+    <header id="header">
+  
+  <nav class="menu menu--right">
+  
+    <a class="menu__item" href="/">主页</a>
+    <a class="menu__item" href="/archives/">归档</a>
+    <a class="menu__item" href="/categories/">专题</a>
+    <a class="menu__item" href="/tags/">标签</a>
+    <!-- <a class="menu__item" href="/">作品</a> -->
+    <!-- <a class="menu__item" href="/about/">关于</a> -->
+  </nav>
+</header>
+    <main>
+      <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post__header">
+  <h1 class="post__title">Angular学习笔记：应用基础架构</h1>
+  
+  
+  <div class="post__meta">
+    
+<time class="post__date" datetime="2018-11-07T03:13:40.000Z" itemprop="datePublished">
+  
+  <i class="blogfont">&#xedff;</i>
+  
+  2018-11-07 11:13:40
+</time>
+
+    
+<div class="post__category">
+  <i class="blogfont">&#xe62d;</i>
+  <a class="category-link" href="/categories/Dev/">Dev</a>
+</div>
+  
+
+    
+<div class="post__tag">
+  <i class="blogfont">&#xe7ec;</i>
+  <a class="tag-link" href="/tags/Angular/" rel="tag">Angular</a>, <a class="tag-link" href="/tags/TypeScript/" rel="tag">TypeScript</a>
+</div>
+
+
+    <div id="/2018-11-07/angular-basic-architecture/" class="leancloud_visitors post__stat" data-flag-title="Angular学习笔记：应用基础架构">
+  <i class="blogfont">&#xe672;</i>
+  <span class="leancloud-visitors-count">loading...</span>
+</div>
+  </div>
+</header>
+  <aside class="post__aside">
+  <div class="post__actions">
+    <a id="backTop" class="post__top" href="javascript:">
+      <i class="blogfont">&#xe6b1;</i><!-- 回到顶部 -->
+    </a>
+    <!-- <a id="share" class="post__share" href="javascript:">
+      <i class="blogfont">&#xe6c1;</i>
+    </a> -->
+  </div>
+  <ol class="post__toc"><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#NgModule"><span class="post__toc-text">NgModule</span></a><ol class="post__toc-child"><li class="post__toc-item post__toc-level-4"><a class="post__toc-link" href="#作用"><span class="post__toc-text">作用</span></a></li><li class="post__toc-item post__toc-level-4"><a class="post__toc-link" href="#内容"><span class="post__toc-text">内容</span></a></li><li class="post__toc-item post__toc-level-4"><a class="post__toc-link" href="#NgModule与ES-Module"><span class="post__toc-text">NgModule与ES Module</span></a></li></ol></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#装饰器"><span class="post__toc-text">装饰器</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#Angular应用的基础架构"><span class="post__toc-text">Angular应用的基础架构</span></a></li></ol>
+</aside>
+  <div class="post__content" itemprop="articleBody">
+    <p><img src="https://upload-images.jianshu.io/upload_images/3497104-e426caf4194e00eb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p>刚接触Angular的时候觉得它的<strong>模块化</strong>让人非常不适应，并且使用TypeScript编写后更是提升了一些学习曲线，在感觉高大上的同时一头雾水摸不清。仔细学习和研究了之后发现要使用好Angular，对应用的架构要求具有高度组织性和层次性，但初学者非常容易在逻辑和文件层面出现组织混乱。为了理清这种混淆，首先得明确<strong>NgModule</strong>的概念。</p>
+<h3 id="NgModule"><a href="#NgModule" class="headerlink" title="NgModule"></a>NgModule</h3><p>Angular赖以实现<strong>模块化</strong>开发和构建应用的方式就是定义了自身框架的模块化系统<strong>NgModule</strong>。对<strong>模块化</strong>如此强调的原因有开发者意识层面的原因，也有实践层面的原因，在Angular中尤其关键，逻辑层面的功能组织都是围绕模块来展开的。<strong>NgModule</strong>的含义有广狭之分，广义的概念就是指代Angular框架中的模块体系，狭义的概念是Angular框架中最基础的构建单元，即Angular应用是由一个个<strong>NgModule</strong>组成的，它具有代码实体。</p>
+<h4 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h4><p><strong>NgModule</strong>最主要的用途就是在逻辑层面上组织代码，它也体现在文件组织上。</p>
+<ul>
+<li><p><strong>模块化</strong>：将实现一个具体功能集或特性的各部分归集到一个模块中，达到逻辑上的模块化，可以通过对这个模块进行导入和删除而引用和移除这个模块的功能。模块可以包含多个组件和服务。这个模块具体做了以下事情：</p>
+<ul>
+<li>引入其他模块导出的内容</li>
+<li>声明模块包含的各部分内容</li>
+<li>为模块内各部分提供统一的编译上下文</li>
+<li>导出本模块可供其他模块依赖的内容</li>
+</ul>
+</li>
+<li><p><strong>代码组织</strong>：除了在逻辑层面上进行组织，文件目录中也能体现这种模块化的代码组织方式，一个模块可以体现为一个目录，通过添加和移除目录来实现这部分代码的引入和删除，做整体化的模块增减。文件夹中包含了模块文件、入口组件和路由文件，然后再通过子层的组件文件夹去实现具体的视图或其他功能。一个文件组织非常到位的实例是<a href="https://github.com/akveo/ngx-admin" target="_blank" rel="noopener">ngx-admin</a>，具体的文件组件方式也要根据应用的复杂程度来调整。另外官方已经推荐了比较好的实践范式，<a href="https://www.cnblogs.com/yitim/p/angular2-study-module-framework.html" target="_blank" rel="noopener">这篇文章</a>中最后整理出的体系图可以为开发者提供一个最佳实践的示意图。</p>
+</li>
+</ul>
+<h4 id="内容"><a href="#内容" class="headerlink" title="内容"></a>内容</h4><ul>
+<li><strong>组件</strong>：组件与Vue中的组件含义略有差异。在Angular中，组件的作用被要求更加单纯，主要是模板和数据视图的中间层，定义与视图有关的逻辑，它通过文件夹的方式组织起来，组成的构建块分别有html模板、css文件和ts视图逻辑文件。尽管不把服务等与视图无关的逻辑按文件拆分开来放也不影响最终的应用实现，但Angular希望能让组件与服务这些用装饰器实现的声明类在逻辑层面上各司其职，在文件组织层面上各就其位。根据构建单元的引用层级，组件一般还包含了以下部分：<ul>
+<li>模板：与组件关联的html文件</li>
+<li>指令：Angular提供的结构化指令如 <code>*ngIf</code>、<code>*ngFor</code>，插值模板指令如<code>ngModel</code>，可自定义</li>
+<li>管道：格式化显示插值</li>
+</ul>
+</li>
+<li><strong>服务</strong>：与视图无关并可跨组件共享的功能模块。</li>
+</ul>
+<h4 id="NgModule与ES-Module"><a href="#NgModule与ES-Module" class="headerlink" title="NgModule与ES Module"></a>NgModule与ES Module</h4><p>ES Module是语言语法层面上的模块体系，NgModule是Angular逻辑框架层面上的模块体系，这两个模块系统的层面不同，是无冲突的。简而言之，ES Module的使用以文件为单位，在其他框架构建的应用中与NgModule毫无关联。</p>
+<p>在Angular应用中，模块的实现依赖于这两个模块系统的结合，是相辅相成的。由于NgModule是框架自身以逻辑实现的，与文件的绑定并无严格关系，模块导入这种语法层面的事情还是得需要ES Module来处理，所以通过分析，可以很显然得出结论，ES module处理文件依赖关系，NgModule处理应用逻辑依赖关系。</p>
+<h3 id="装饰器"><a href="#装饰器" class="headerlink" title="装饰器"></a>装饰器</h3><p>Angular架构中使用JS特性最突出的一点就是类，所有逻辑功能单元都被声明为类，模块、组件、服务、指令、管道等都是作为类来导出，而这些类本身是没有办法区分彼此，难道都只能通过口头约定么？</p>
+<p>另一个特性<strong>装饰器</strong>无疑为这个问题提供了一个近乎完美的解决方案，<strong>装饰器</strong>这个概念的引入得益于其他高级语言，而且这个方案的应用早就很成熟了，Python里就屡见不鲜。之前在学习ES6特性的时候一直觉得此特性只可远观，通过学习Angular的一番实践，终于知道它是多么强大的开发助攻了。</p>
+<p>在Angular所有的构建单元声明前都要包装一层装饰器，元数据作为一个对象传入装饰器中用来在内部逻辑中将类和声明的另一些构建块（如模板、样式）和构建单元建立关联，同时明确这个类的身份。这样在构建单元相互引用依赖时，就能区别引入的构建单元的类型，同时会制约它们的行为。</p>
+<h3 id="Angular应用的基础架构"><a href="#Angular应用的基础架构" class="headerlink" title="Angular应用的基础架构"></a>Angular应用的基础架构</h3><p><strong>装饰器</strong>是Angular架构中高层的抽象机制它区别了Angular中声明类的类别，<strong>NgModule</strong>是逻辑层面的组织结构，它与<strong>装饰器</strong>一起构筑了整个Angular应用架构的基石。</p>
+
+  </div>
+  
+  <section id="comments" class="comments">
+    <div class="valine-comment"></div>
+<!--载入js，在</body>之前插入即可-->
+<!--Leancloud 操作库:-->
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<!--Valine 的核心代码库-->
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<script>
+new Valine({
+    el: '.valine-comment',
+    app_id: 'DKiK5z8iNqcTBYteGEiuxyaP-gzGzoHsz',
+    app_key: '0SPtM0nGzQdGBXxpwbOSLTXV',
+    placeholder: '有什么话想告诉我？',
+    visitor: 'true',
+  })
+</script>
+  </section>
+  
+</article>
+    </main>
+    <footer id="footer">
+  Copyright &copy; 2025 Shio  
+  <a class="social-links" href="https://github.com/ushio-s"
+    ><i class="blogfont">&#xe6b7; </i></a
+  >
+  
+  <a class="social-links" href="mailto:jylzs369@163.com"
+    ><i class="blogfont">&#xe61a; </i></a
+  >
+  
+  <a class="social-links" href="https://www.jianshu.com/u/70c1c469e3b6"
+    ><i class="blogfont">&#xe6d7; </i></a
+  >
+  
+  <a class="social-links" href="https://www.zhihu.com/people/jylzs369"
+    ><i class="blogfont">&#xe606; </i></a
+  >
+  
+  <a class="social-links" href="/atom.xml"
+    ><i class="blogfont">&#xe640; </i></a
+  >
+    <a href="https://beian.miit.gov.cn/" title="粤ICP备20052180号" target="_blank" rel="noopener">粤ICP备20052180号</a>
+</footer>
+
+    <!-- scripts -->
+
+<script src="/scripts/main.js"></script>
+
+  </body>
+</html>

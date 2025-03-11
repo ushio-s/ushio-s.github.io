@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html  lang=zh-CN>
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  
+    
+    <link rel="shortcut icon" href="/images/favicon.ico ">
+    
+    
+    <link rel="icon" type="image/png" href="/images/favicon-android.png " sizes="192x192">
+    
+    
+    <link rel="apple-touch-icon" href="/images/favicon-apple.png " sizes="180x180">
+    
+  
+  <!-- title -->
+  <title>Shio&#39;s Psycology Life 理解JavaScript核心知识点：原型 </title>
+  <!-- styles -->
+  <!-- styles -->
+
+<link rel="stylesheet" href="/styles/global.css">
+
+  <!-- rss -->
+  
+  <link rel="alternate" href="/atom.xml" title="Shio&#39;s Psycology Life" type="application/atom+xml" />
+  
+<meta name="generator" content="Hexo 4.2.1"></head>
+  <body>
+    <header id="header">
+  
+  <nav class="menu menu--right">
+  
+    <a class="menu__item" href="/">主页</a>
+    <a class="menu__item" href="/archives/">归档</a>
+    <a class="menu__item" href="/categories/">专题</a>
+    <a class="menu__item" href="/tags/">标签</a>
+    <!-- <a class="menu__item" href="/">作品</a> -->
+    <!-- <a class="menu__item" href="/about/">关于</a> -->
+  </nav>
+</header>
+    <main>
+      <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post__header">
+  <h1 class="post__title">理解JavaScript核心知识点：原型</h1>
+  
+  
+  <div class="post__meta">
+    
+<time class="post__date" datetime="2019-07-08T09:13:28.000Z" itemprop="datePublished">
+  
+  <i class="blogfont">&#xedff;</i>
+  
+  2019-07-08 17:13:28
+</time>
+
+    
+<div class="post__category">
+  <i class="blogfont">&#xe62d;</i>
+  <a class="category-link" href="/categories/Dev/">Dev</a>, <a class="category-link" href="/categories/Dev/Understanding-JavaScript/">Understanding JavaScript</a>
+</div>
+  
+
+    
+<div class="post__tag">
+  <i class="blogfont">&#xe7ec;</i>
+  <a class="tag-link" href="/tags/JavaScript/" rel="tag">JavaScript</a>
+</div>
+
+
+    <div id="/2019-07-08/understanding-javascript-core-prototype/" class="leancloud_visitors post__stat" data-flag-title="理解JavaScript核心知识点：原型">
+  <i class="blogfont">&#xe672;</i>
+  <span class="leancloud-visitors-count">loading...</span>
+</div>
+  </div>
+</header>
+  <aside class="post__aside">
+  <div class="post__actions">
+    <a id="backTop" class="post__top" href="javascript:">
+      <i class="blogfont">&#xe6b1;</i><!-- 回到顶部 -->
+    </a>
+    <!-- <a id="share" class="post__share" href="javascript:">
+      <i class="blogfont">&#xe6c1;</i>
+    </a> -->
+  </div>
+  <ol class="post__toc"><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#编程哲学与设计模式：Programming-Philosophy-and-Design-Pattern"><span class="post__toc-text">编程哲学与设计模式：Programming Philosophy and Design Pattern</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#作为一种设计模式的类：”Class”-Design-Pattern"><span class="post__toc-text">作为一种设计模式的类：”Class” Design Pattern</span></a><ol class="post__toc-child"><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#类：What’s-Class"><span class="post__toc-text">类：What’s Class</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#实例：What’s-Instance"><span class="post__toc-text">实例：What’s Instance</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#继承：What’s-Inheritance"><span class="post__toc-text">继承：What’s Inheritance</span></a></li></ol></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#作为一种机制的原型：”Prototype”-Mechanism"><span class="post__toc-text">作为一种机制的原型：”Prototype” Mechanism</span></a><ol class="post__toc-child"><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#原型：What’s-Prototype"><span class="post__toc-text">原型：What’s Prototype</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#原型链：Prototype-Chain"><span class="post__toc-text">原型链：Prototype Chain</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#原型的作用：Why-Prototype"><span class="post__toc-text">原型的作用：Why Prototype</span></a><ol class="post__toc-child"><li class="post__toc-item post__toc-level-4"><a class="post__toc-link" href="#使用类模式实现继承的逻辑图"><span class="post__toc-text">使用类模式实现继承的逻辑图</span></a></li><li class="post__toc-item post__toc-level-4"><a class="post__toc-link" href="#使用原型模式实现继承的逻辑图"><span class="post__toc-text">使用原型模式实现继承的逻辑图</span></a></li></ol></li></ol></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#模式之争：The-War-of-Pattern"><span class="post__toc-text">模式之争：The War of Pattern</span></a><ol class="post__toc-child"><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#原型与类：Prototype-vs-Class"><span class="post__toc-text">原型与类：Prototype vs. Class</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#原型与委托：Prototype-vs-Delegation"><span class="post__toc-text">原型与委托：Prototype vs. Delegation</span></a></li></ol></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#参考文献：Reference"><span class="post__toc-text">参考文献：Reference</span></a></li></ol>
+</aside>
+  <div class="post__content" itemprop="articleBody">
+    <p><code>JavaScript</code> 中的原型机制一直以来都被众多开发者（包括本人）低估甚至忽视了，这是因为绝大多数人没有想要深刻理解这个机制的内涵，以及越来越多的开发者缺乏计算机编程相关的基础知识。对于这样的开发者来说 <code>JavaScript</code> 的原型机制是一个尚待发掘的大宝藏，深入了解下去会让大家在编程这条路上走得更长远，当然你不能妄想任何一种机制、模式或范式是完美无缺的。</p>
+<p>首先，需要来理清一些基础的计算机编程概念：</p>
+<h2 id="编程哲学与设计模式：Programming-Philosophy-and-Design-Pattern"><a href="#编程哲学与设计模式：Programming-Philosophy-and-Design-Pattern" class="headerlink" title="编程哲学与设计模式：Programming Philosophy and Design Pattern"></a>编程哲学与设计模式：Programming Philosophy and Design Pattern</h2><p>计算机编程理念源自于对现实抽象的哲学思考，面向对象编程（<a href="https://baike.baidu.com/item/OOP/1152915" target="_blank" rel="noopener">OOP</a>）是其一种思维方式，与它并驾齐驱的是另外两种思路：过程式和函数式编程。这三种方式对应于解决计算机架构问题的三种不同思路。它们也分别代表了不同的编程哲学。</p>
+<p>具体实现编程架构的代码方案可以称为设计模式。设计模式是解决具体问题的一种最佳实践，可以用在设计语言本身，也可以用在具体业务场景中。</p>
+<p>三种思路在语言本身的设计和应用业务中是可能混用的，灵活的语言正如 <code>JavaScript</code> ，内部虽然是基于面向对象编程而实现，但在开发过程中也可以运用过程式编程或函数式编程的思路进行具体业务的设计。正因为这容易造成开发者的混乱，所以特别指出，下面一段讨论的是针对语言内部的实现方式而不是应用业务。</p>
+<p>面向对象编程语言的核心是对象，针对如何设计出一套语言的对象模型编程大师们又提出了三种不同的模式：类、原型、元类（元类是基于类模型产生的新模型）。三种模型造就了许多不同的编程语言，<code>JavaScript</code> 恰好是原型模式的典型代表，正如 <code>JAVA</code> 是基于类模式的典范，请谨记这一语言本身在设计模式上的区别。</p>
+<p>很多语言由于自身的实现而限制了在其中可能应用到业务中的设计模式。但对于 <code>JavaScript</code> 这样的语言来说，选择是开放性的，因为我们经常在应用业务上听到大家讨论类继承或原型继承这样的实现方案，这便是它非常灵活的一个表现。但对于类模式和原型模式，有一些本质上的概念区别和使用混淆是很多人没有注意到的，下面对这两种设计模式做一个详细的讨论。</p>
+<h2 id="作为一种设计模式的类：”Class”-Design-Pattern"><a href="#作为一种设计模式的类：”Class”-Design-Pattern" class="headerlink" title="作为一种设计模式的类：”Class” Design Pattern"></a>作为一种设计模式的类：”Class” Design Pattern</h2><p>基于类的应用或业务架构实现可以称为类设计模式，我们在业务开发中不可避免地会使用到继承的概念便是出自于<strong>类</strong>的范畴。类不专属于 <code>JavaScript</code> 语言范畴，<code>JavaScript</code> 中实质上也没有实现真正的基于类设计模式的接口。<code>JavaScript</code> 中一切关于“类”的说法实际上都是一种有名无实的冒充和混淆。</p>
+<p>我们通常以为在 <code>JavaScript</code> 中“类”是必选的，使用它来实现业务架构不仅天经地义而且是唯一的——这是对 <code>JavaScript</code> 的最大误解。<code>JavaScript</code> 虽然是面向对象的编程语言，但以类作为对象模型来实现业务需求的方式只能说是一种设计模式：<strong>面向对象绝不等同于类</strong>。</p>
+<p>类是一份产品制造说明书，指导生产机器生产符合其定义参数、具有相应功能的产品。它的用途在于规定而不在于实际使用，使用的是通过类制造出来的产品，在 <code>JavaScript</code> 中即对象。我们基于复用、继承等工业化生产需求而使用类这套设计模式：<strong>规定 -&gt; 制造 -&gt; 使用</strong>。但我们千万不能忘记，在工业化时代出现之前，通过手工的方式一样可以制造产品，如果你需要批量生产模样一样的东西才需要这份产品制造说明说。就手段来说要澄清的一个误区是，<strong>类并不是实现功能复用、广义上的继承等业务目标的唯一模式</strong>。</p>
+<h3 id="类：What’s-Class"><a href="#类：What’s-Class" class="headerlink" title="类：What’s Class"></a>类：What’s Class</h3><p><strong>类</strong>，是面向对象编程中一种通用对象模型，它是基于一种对现实中事物进行分类的抽象，天生带有类别层级的观念，如<strong>生物</strong>是一级类、<strong>动物</strong>是一个具有所有生物特性而派生出自己独有特性的二级类，依照这样的逻辑还可以继续推及到其下更多细别的子类，这是一种将所有对象进行树状类别组织关联的思维方式：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/3497104-17fabbbd6b39cbc1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="类-分类"></p>
+<p>通过这张图可以得出一个显而易见却容易被忽视的事实：永远没有一只具体的哺乳动物（比如说一只狮子）等同于<strong>哺乳动物</strong>这个类别，就像你不等于人类一样。类是一个并不具有实体的概念，是人为的发明，为了将具有类似特性的事物分门别类以适应人脑简化处理信息的方式，尽管自然并不是出于这样的目的而生成各种事物的。</p>
+<p><code>JavaScript</code> 中类的概念也是人为的设计，为的是更靠近本身以类模式设计而成的语言，尽管它本身是以原型模式设计而成的。因此我们有了 <code>new</code> 一个对象这种操作，为的是更符合采用类这一设计模式来实践面向对象编程。所以在此处埋下了第一个令人迷惑的种子：<code>JavaScript</code> 原生基于原型关联起来的对象与基于类创建的与类关联起来的对象两种概念的混淆。对于发现了这一对使人迷惑的概念的开发者来说，便有了第一个疑问：</p>
+<p><strong>为什么基于原型模式设计而成的 <code>JavaScript</code> 不继续在业务场景中使用原型设计模式，而是转而求向类设计模式？</strong></p>
+<p>之前有过说明，实践面向对象编程的方式有三种的，并且没有任何一种是完美无缺的。所以请把类模式是最好的这种想法抛到九霄云外吧。暂且将这个问题移到潜意识中去，继续了解一下类范畴的的其他相关概念。</p>
+<h3 id="实例：What’s-Instance"><a href="#实例：What’s-Instance" class="headerlink" title="实例：What’s Instance"></a>实例：What’s Instance</h3><p>实例的概念基于类之上。正如自然界中单一的个体即是它所属类别中的一个实例，面向对象语言中的一个对象就是它所属类中的一个实例。语言通过类的规定，生成了具有内存实体的对象。在这样的语言中，实例和对象的指代物是一致的，我们通常在类设计模式中采用实例来描述一个内存实体，而在编程实践中使用对象来描述一个内存实体，其实是在不同层面上的语言转换。理解这种词语的转换，对于我们在阅读各种技术书籍时了解作者所选择的表述视角是有帮助的。</p>
+<p>创建实例操作的结果是将类的属性和方法分别复制到不同的实例对象中，它们持有各自独立的版本，这也意味着每一个由同一个类创建出的实例都是各自独立互不影响的个体。</p>
+<p>而在 <code>JavaScript</code> 中，事情就变得没那么简单了。不管在它的设计者设计出模拟类模式的原生 <code>API</code> 之前还是之后（当然官方一直有关于类的语法糖的支持），<code>JavaScript</code> 的世界实际上都是由且只由对象组成。当你创建了一个构造器函数或使用 <code>ES6</code> 的类定义语法时，其实质根本没有真的定义了类，它是由对象伪装而成的。</p>
+<p>在这一事实的基础上，就能发现既然“类”也是对象，那么我们本以为应用类模式建立的类与实例之间的纯粹关系就被基于对象的模拟打破了。使用上面那个大自然的归类例子再来解释下这是什么意思：当哺乳动物这一类别是一只狮子时，它既是具体又是抽象的，作为一个类这只狮子囊括了所有的哺乳动物，它是凌驾于其他具体生物之上的；作为一个具体生物它又是被包含进它本身的…这似乎变成了一个逻辑问题。</p>
+<p>人类在采用类这一概念时就已经将这个概念进行了抽象，它不指代任何具体的个体，即便它是一份具有实体的蓝图，也是与遵循它创造出来的物品不相同的东西。而在 <code>JavaScript</code> 里所发生的正是与之相矛盾的，它对于类模式的模拟实现其实是对类模式的颠覆。</p>
+<h3 id="继承：What’s-Inheritance"><a href="#继承：What’s-Inheritance" class="headerlink" title="继承：What’s Inheritance"></a>继承：What’s Inheritance</h3><p>继承是类范畴里的重要概念，也是我们之所以要使用类的重要理由。继承的目的是为了实现属性或功能复用，顺便减少编写代码的机械操作。类模式的继承操作使子类拥有已经在父类里定义的属性或方法，继承而来的属性或方法是子类所有的独立版本，子类可以在此基础上继续修改已继承的属性或方法，并且扩展属于自己的属性或方法。</p>
+<p>继承即是基于现实中类别的多级抽象。前面图示中所列出的树状结构就是对继承很好的说明。在自然过程中，我们从祖先那里继承而来的基因是属于复制而来的独立版本，现实中当然不存在继承而来的一模一样的基因，但即便是一模一样的基因序列，也是各自独立的版本，你身体中的基因再也不是祖先身体中的那个基因了。</p>
+<p>尤其强调<strong>独立</strong>这个词，是因为类模式如实地实现了对自然界这一复制过程的模拟，而在 <code>JavaScript</code> 这一基于原型模式设计的语言中，我们又一次被它的表面类模式糊弄了。</p>
+<p>在真正的类模式中，不管是父类还是子类都是独立封装好的一份规格，如果一个子类没有继承到父类的某一属性或方法它自身也没有进行扩展时，它的实例是不可能使用这个属性或方法的。很明显 <code>JavaScript</code> 中的继承“<em>完美解决了这个问题</em>”，即便一个“类”自己没有继承也没有扩展某个属性或方法，它创造出的实例还可以从祖先那里<strong>借用</strong>。</p>
+<p>结合实例一节所述，于是第二个问题呼之欲出：<strong>除了写法相似之外，<code>JavaScript</code> 中几乎所有与类相关的概念和行为都同惯常的类模式不那么相符，这真的可以被称为是类模式的实现么？</strong></p>
+<p>基于以上两个问题对自己进行了灵魂拷问，终于决定要来仔细瞧瞧 <code>JavaScript</code> 中一直被当做类的影子的那个亲骨肉——原型。</p>
+<h2 id="作为一种机制的原型：”Prototype”-Mechanism"><a href="#作为一种机制的原型：”Prototype”-Mechanism" class="headerlink" title="作为一种机制的原型：”Prototype” Mechanism"></a>作为一种机制的原型：”Prototype” Mechanism</h2><p>在词汇语义上，原型的概念就与类所区别：<strong>原型是一个最初的对象</strong>。类的逻辑在于将已存在事物划分层次，达到概括事物或分类的目的；原型的逻辑中没有抽象的层级，它是根据已存在事物寻找能代表它最初的最本源的那一个，层层溯源，途径的都是具象的。恐怕原型的概念对于熟稔哲学的人来说比类更为亲切。它在编程上的思想是：<strong>新的物体藉由复制原型产生</strong>。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/3497104-944b5d225e43ee33.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="原型和类"></p>
+<p><code>JavaScript</code> 的原型机制就遵循了一定程度原型哲学的思路。而原型机制是 <code>JavaScript</code> 所特有的。原型机制的实现是，对象有一个内部属性指向另一个对象，将二者联结起来的属性的变量名就是我们熟悉的 <code>__proto__</code>，它暴露了内部实现的原型，被指向的对象被称为前者的原型，通常用 <code>obj.__proto__</code> 来指代 <code>obj</code> 这个对象的原型。除此之外别忘记，这只是那个真实的原型对象的别称。例如 <code>origin</code> 是另一个对象，以下这条语句就建立了这两个对象的原型关联关系：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">let obj &#x3D; &#123;&#125;</span><br><span class="line">let origin &#x3D; &#123;&#125;</span><br><span class="line">obj.__proto__ &#x3D; origin</span><br></pre></td></tr></table></figure>
+
+<p>你可以使用 <code>origin</code> 引用它指向的那个对象，其实质是一个内存地址，也可以使用 <code>obj.__proto__</code> 来引用同样的内存地址。作为一个单独个体的对象和一个作为别的对象的原型的对象是合而为一的。（实际开发中不要直接使用 <code>__proto__</code> ，此处只是为了简便。应该用 <code>Object.getPrototypeOf()</code> 方法获取原型对象）</p>
+<p>原型机制用一句话概括就是：<strong>将单个对象建立起原型关联关系的过程。</strong></p>
+<h3 id="原型：What’s-Prototype"><a href="#原型：What’s-Prototype" class="headerlink" title="原型：What’s Prototype"></a>原型：What’s Prototype</h3><p>原型的语义概念上面已经介绍了，现在专门讲讲 <code>JavaScript</code> 中的原型。在 <code>JavaScript</code> 中，一切都是对象，那么这个世界总要有一个本源性的对象，就像上图中的原核生物一样，从它一生二而生成万物。的确，这样的一个被称为最初的原型的对象是存在的，它就是 <code>Object.prototype</code>，原因是它再也无法向上追溯到任何对象了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Object.prototype.__proto__ &#x3D;&#x3D;&#x3D; null</span><br></pre></td></tr></table></figure>
+
+<p>这里我们要知道 <code>null</code> 代表的是“没有”的意思。因此 <code>JavaScript</code> 的世界是从 <code>Object.prototype</code> 开始的。使用过 <code>JavaScript</code> 的开发者必定对这个对象印象深刻，但可能很多人从来没有从这个视角看待它。</p>
+<p>从它衍生出的一个重要的对象是一个函数 <code>Object</code>，它被称为构造函数，尽管由 <code>Object</code> 构造函数创建出来的对象的原型都是指向 <code>Object.prototype</code> 的，但它自己的原型对象却并不是 <code>Object.prototype</code>，而是 <code>Function.prototype</code>， <code>Function.prototype</code> 的原型才指向的是 <code>Object.prototype</code>，从这里我们可以隐隐窥见原型继承的精髓。</p>
+<p>再次强调一下，<code>Object</code> 是一个名字叫做“对象”的函数，<code>Object.prototype</code> 是一个叫做“对象构造器原型”的对象，与其他的原生构造器原型对象一样，这些对象都是没有自己独立名称的对象。在学习 <code>JavaScript</code> 时，必须好好区分这些基础概念。</p>
+<h3 id="原型链：Prototype-Chain"><a href="#原型链：Prototype-Chain" class="headerlink" title="原型链：Prototype Chain"></a>原型链：Prototype Chain</h3><p>原型链是原型继承得以实现的基础，但其实在原型中使用“继承”这个词是不那么准确的。原型链是内部机制通过私有的“原型”属性实现对象之间的关联而形成的一条链式属性查找规则。它是单向度的，只能向上回溯，作为原型的对象无法查找它的继承者们的任何属性和方法。</p>
+<p>原型链机制为 <code>JavaScript</code> 提供了实现强大功能的基础，但可以想象，每次查找都是要花费额外开销的，链条越长，开销越大。它具有一个奇特的特点，即便某个对象上并未定义变量它也不会导致程序报错，而是得到 <code>undefined</code>，这正是原型链机制自动查找属性的一个后果。在没有必要的情况下，应该避免编写造成无谓的原型链查找的代码。</p>
+<p>我们时常需要通过判断一个对象的属性存在与否实现一些分支判断，现在假设一条原型链是这样的，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">obj5 -&gt; obj4 -&gt; obj3 -&gt; obj2 -&gt; obj1</span><br></pre></td></tr></table></figure>
+
+<p>它们都不具有一个叫做 <code>prop</code> 的属性，接着实现了如下简化了过程的判断场景：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">let condition &#x3D; action()</span><br><span class="line">...</span><br><span class="line">if (condition)  obj5.prop &#x3D; true</span><br><span class="line">...</span><br><span class="line">if (obj5.prop) &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p>没有任何问题的代码对不对？当然，在条件为true时一切都很完美，但是如果 <code>condition</code> 为 <code>false</code> 呢，最后那条判断语句就要查找5次最后才能回到判断，如果链条更长呢？</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 解决方案1：不需要中间变量时</span><br><span class="line">obj5.prop &#x3D; action()</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 解决方案2：需要中间变量时（可能二次改变）</span><br><span class="line">obj5.prop &#x3D; condition</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 当然还有更多变种...</span><br></pre></td></tr></table></figure>
+
+<p>或许有人觉得不太可能出现这样的错误，但当代码复杂到一定程度、中间过程非常繁琐，工期非常紧迫时，一切都是有可能的，大问题都是因为那些小步骤中一个又一个的将就累积出来的。更何况作为一个有追求的开发者，即便浏览器为我们的代码实现了最大程度的性能优化，不应该多一些对自我的要求么。</p>
+<h3 id="原型的作用：Why-Prototype"><a href="#原型的作用：Why-Prototype" class="headerlink" title="原型的作用：Why Prototype"></a>原型的作用：Why Prototype</h3><p>既然类设计模式已经如此流行并深入一代又一代开发者的脑海，那么为什么还会有原型设计模式的立足之地呢？毫无疑问是因为 <code>JavaScript</code> 的存在。作为网页开发脚本的 <code>JavaScript</code> 一直唯我独尊地统御着这片疆域，至少目前开来还没有哪一种新的脚本语言能够取代它的位置。但试想一下假如有一天一种以类模式设计而成的语言可以彻底取代它，原型机制将要消亡的那天大概就要来临了，没有哪一种语言能够像 <code>JavaScript</code> 这样能够彻底地实践原型机制了。</p>
+<p>除了上面这个从语言层面来说的使用原型模式的前提，在 <code>JavaScript</code> 编程中使用原型模式而不是类模式实现业务功能也有一个让人较为信服的原因。众所周知使用类和原型的目的都是为了实现继承，或者从更本质上来说是功能复用。</p>
+<p>而在 <code>JavaScript</code> 中选择原型模式的理由就在<a href="https://github.com/getify/You-Dont-Know-JS/blob/master/this%20&%20object%20prototypes/ch6.md" target="_blank" rel="noopener">《You Don’t Know JS》这本书的章节中</a>。作者叙述地那么明了，也不需要做额外的解析了。在此我只引用两张图作为最直观的证据：</p>
+<h4 id="使用类模式实现继承的逻辑图"><a href="#使用类模式实现继承的逻辑图" class="headerlink" title="使用类模式实现继承的逻辑图"></a>使用类模式实现继承的逻辑图</h4><p><img src="https://upload-images.jianshu.io/upload_images/3497104-d6b7607b7dab723b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="类继承逻辑图"></p>
+<h4 id="使用原型模式实现继承的逻辑图"><a href="#使用原型模式实现继承的逻辑图" class="headerlink" title="使用原型模式实现继承的逻辑图"></a>使用原型模式实现继承的逻辑图</h4><p><img src="https://upload-images.jianshu.io/upload_images/3497104-1a09ab14f7d9fb91.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="原型继承逻辑图"></p>
+<p>很多最为有效的问题处理方式通常都是最简洁的方式，那些需要通过制造一个问题而去解决另一个问题的方法只会让人头脑晕眩，通常如果我们不能三言两语就点出问题的核心，只能反思自己可能对问题理解得不够透彻。如果能用一个非常简单有效的方法实现同样的结果，我实在是找不出什么原因非要去采用一个更加复杂的方法。</p>
+<p>如上铺垫了一大堆概念，到底能从中得出什么结论？——你为什么想在 <code>JavaScript</code> 的业务开发中使用类模式而不是原型模式？</p>
+<p>原型模式作为 <code>JavaScript</code> 原生的设计模式却没有得到开发者足够的理解，这与官方挖空心思强行模拟类模式的引导不无关系。</p>
+<p>一位国外开发者 <a href="http://ericelliottjs.com/" target="_blank" rel="noopener"><code>Eric Elliott</code></a> 作了一个尖锐的比喻：</p>
+<blockquote>
+<p>Using class inheritance in JavaScript is like driving your new Tesla Model S to the dealer and trading it in for a rusted out 1973 Ford Pinto.</p>
+</blockquote>
+<p>翻译：在 <code>JavaScript</code> 中使用类继承就像把你崭新的特斯拉Model S开到交易商那换了一辆生锈的1973年的福特平托。</p>
+<p>这种比喻何以见得恐怕通过上面那两张图的比较已经有了一个大致的理解，即便是不打算放弃类模式的开发方式，深入理解这种争议的缘由更助于提高我们的开发能力。我们需要时不时停下来多问问几个为什么。</p>
+<h2 id="模式之争：The-War-of-Pattern"><a href="#模式之争：The-War-of-Pattern" class="headerlink" title="模式之争：The War of Pattern"></a>模式之争：The War of Pattern</h2><p>一直以来在 <code>JavaScript</code> 中使用类继承还是原型继承似乎不是什么值得争论的事情。但目前越来越多的国外开发者开始意识到原型模式在 <code>JavaScript</code> 中的自然性与逻辑简洁性。类模式与原型模式开始升级为不同阵营实现功能复用的争论点。</p>
+<h3 id="原型与类：Prototype-vs-Class"><a href="#原型与类：Prototype-vs-Class" class="headerlink" title="原型与类：Prototype vs. Class"></a>原型与类：Prototype vs. Class</h3><p>如果我说在 <code>JavaScript</code> 中使用类模式实现继承是不符合目前人类大脑思维模式的复杂度的，我相信深入理解其中缘由的大多数人是会认可的，证据还是上面那张图，有多少人能够清晰地把上面的逻辑复演出来呢？恐怕大多数人都会在来来往往的直线曲线中迷失了方向，毕竟这样的方式要求你不仅要对类、子类和实例的关系把握精准，还要时刻铭记着它们暗中的原型关联关系，对于初学者来说这种双重性关系一定是会在未来学习的道路上横梗多年的坎。所以才需要在此尤为强调类与原型的种种区别。</p>
+<p>但如果只是将注意力集中在对象之间的原型关联关系上，事情就简单多了。要清楚的是只要 <code>JavaScript</code> 语言本身的实现不改变，对象的原型关联关系是我们无法摆脱的。</p>
+<p>不过原型与类的争论已经属于“旧时代”的争论，在随后开发者们对原型模式更加深入的理解基础上，形成了更深刻的认识和结论，“现代争论”不再是原型与类的冲突，而是原型更新、更本质的行为<strong>委托</strong>。</p>
+<h3 id="原型与委托：Prototype-vs-Delegation"><a href="#原型与委托：Prototype-vs-Delegation" class="headerlink" title="原型与委托：Prototype vs. Delegation"></a>原型与委托：Prototype vs. Delegation</h3><p>前面有提到过在原型里说“继承”是不准确的，原因是名副其实的类继承的行为本质上是复制，而 <code>JavaScript</code> 里无论是用何种方式实现“继承”，它的本质行为都不是复制。</p>
+<p>这里要澄清一个可能的误会，<code>JavaScript</code> 当然是支持复制的，然而成熟的开发者都知道复制与引用原型上的方法可是完全不一样的内存消耗，也正是由于 <code>JavaScript</code> 的原型机制才得以通过不增加副本的方式实现“继承”，所以就此排除了这种使用复制实现“继承”的方式。</p>
+<p>那么在 <code>JavaScript</code> 里“继承”的本质又是什么呢？许多开发者共同倡导了一种新的概念——<strong>委托</strong>。这种机制可以这样简单地理解：<strong>所谓的“继承”其实是对象委托其原型们代劳办事，继承者借助原型上的方法实现功能</strong>。这个新的说法确实是比较生动地描述了原型继承机制的本质的。</p>
+<p>以后或许开发者们会达成共识，把使用原型模式实现继承的方式称为原型委托，如此更符合它的实际情况。但究竟想使用哪种模式进行开发最终还是在于个人的选择，官方对类模式的不懈支持当然无法让众多开发者立即摒弃类语法糖，要从类转换到纯粹的原型上，是需要耗费思路转换和习惯改变的成本的，希望对这个核心知识点的剖析能够使学习者们更好地理解 <code>JavaScript</code> 的本质语言特性，启发来者们更多的深入思考。</p>
+<h2 id="参考文献：Reference"><a href="#参考文献：Reference" class="headerlink" title="参考文献：Reference"></a>参考文献：Reference</h2><ul>
+<li>You Don’t Know JS: this &amp; object prototypes<ul>
+<li><a href="https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch4.md" target="_blank" rel="noopener">Chapter 4: Mixing (Up) “Class” Objects</a></li>
+<li><a href="https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch5.md" target="_blank" rel="noopener">Chapter 5: Prototypes</a></li>
+<li><a href="https://github.com/getify/You-Dont-Know-JS/blob/master/this%20%26%20object%20prototypes/ch6.md" target="_blank" rel="noopener">Chapter 6: Behavior Delegation</a></li>
+</ul>
+</li>
+<li><a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Inheritance_and_the_prototype_chain" target="_blank" rel="noopener">MDN web docs: 继承与原型链</a></li>
+<li><a href="https://javascript.info/prototype-inheritance" target="_blank" rel="noopener">The JavaScript language：Prototypal inheritance</a></li>
+<li><a href="https://tylermcginnis.com/javascript-inheritance-and-the-prototype-chain/" target="_blank" rel="noopener">JavaScript Inheritance and the Prototype Chain</a></li>
+<li><a href="https://medium.com/javascript-scene/master-the-javascript-interview-what-s-the-difference-between-class-prototypal-inheritance-e4cd0a7562e9" target="_blank" rel="noopener">Master the JavaScript Interview: What’s the Difference Between Class &amp; Prototypal Inheritance?</a></li>
+<li><a href="https://medium.com/javascript-scene/common-misconceptions-about-inheritance-in-javascript-d5d9bab29b0a" target="_blank" rel="noopener">Common Misconceptions About Inheritance in JavaScript</a></li>
+<li><a href="https://baike.baidu.com/item/OOP/1152915" target="_blank" rel="noopener">面向对象编程（Object Oriented Programming，OOP，面向对象程序设计）</a></li>
+<li><a href="https://hackernoon.com/understanding-javascript-prototype-and-inheritance-d55a9a23bde2" target="_blank" rel="noopener">Understanding JavaScript: Prototype and Inheritance</a></li>
+<li><a href="https://flaviocopes.com/javascript-prototypal-inheritance/" target="_blank" rel="noopener">JavaScript Prototypal Inheritance</a></li>
+<li><a href="https://alligator.io/js/prototypal-pattern/" target="_blank" rel="noopener">The JavaScript Prototypal Inheritance Pattern</a></li>
+<li><a href="https://medium.com/@kevincennis/prototypal-inheritance-781bccc97edb" target="_blank" rel="noopener">Prototypal Inheritance in JavaScript</a></li>
+<li><a href="https://www.cnblogs.com/richieyang/p/4884103.html" target="_blank" rel="noopener">面向过程，面向对象，函数式对同一个问题的思考方式</a></li>
+</ul>
+
+  </div>
+  
+  <section id="comments" class="comments">
+    <div class="valine-comment"></div>
+<!--载入js，在</body>之前插入即可-->
+<!--Leancloud 操作库:-->
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<!--Valine 的核心代码库-->
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<script>
+new Valine({
+    el: '.valine-comment',
+    app_id: 'DKiK5z8iNqcTBYteGEiuxyaP-gzGzoHsz',
+    app_key: '0SPtM0nGzQdGBXxpwbOSLTXV',
+    placeholder: '有什么话想告诉我？',
+    visitor: 'true',
+  })
+</script>
+  </section>
+  
+</article>
+    </main>
+    <footer id="footer">
+  Copyright &copy; 2025 Shio  
+  <a class="social-links" href="https://github.com/ushio-s"
+    ><i class="blogfont">&#xe6b7; </i></a
+  >
+  
+  <a class="social-links" href="mailto:jylzs369@163.com"
+    ><i class="blogfont">&#xe61a; </i></a
+  >
+  
+  <a class="social-links" href="https://www.jianshu.com/u/70c1c469e3b6"
+    ><i class="blogfont">&#xe6d7; </i></a
+  >
+  
+  <a class="social-links" href="https://www.zhihu.com/people/jylzs369"
+    ><i class="blogfont">&#xe606; </i></a
+  >
+  
+  <a class="social-links" href="/atom.xml"
+    ><i class="blogfont">&#xe640; </i></a
+  >
+    <a href="https://beian.miit.gov.cn/" title="粤ICP备20052180号" target="_blank" rel="noopener">粤ICP备20052180号</a>
+</footer>
+
+    <!-- scripts -->
+
+<script src="/scripts/main.js"></script>
+
+  </body>
+</html>

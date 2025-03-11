@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html  lang=zh-CN>
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  
+    
+    <link rel="shortcut icon" href="/images/favicon.ico ">
+    
+    
+    <link rel="icon" type="image/png" href="/images/favicon-android.png " sizes="192x192">
+    
+    
+    <link rel="apple-touch-icon" href="/images/favicon-apple.png " sizes="180x180">
+    
+  
+  <!-- title -->
+  <title>Shio&#39;s Psycology Life [译文]JavaScript工作原理 </title>
+  <!-- styles -->
+  <!-- styles -->
+
+<link rel="stylesheet" href="/styles/global.css">
+
+  <!-- rss -->
+  
+  <link rel="alternate" href="/atom.xml" title="Shio&#39;s Psycology Life" type="application/atom+xml" />
+  
+<meta name="generator" content="Hexo 4.2.1"></head>
+  <body>
+    <header id="header">
+  
+  <nav class="menu menu--right">
+  
+    <a class="menu__item" href="/">主页</a>
+    <a class="menu__item" href="/archives/">归档</a>
+    <a class="menu__item" href="/categories/">专题</a>
+    <a class="menu__item" href="/tags/">标签</a>
+    <!-- <a class="menu__item" href="/">作品</a> -->
+    <!-- <a class="menu__item" href="/about/">关于</a> -->
+  </nav>
+</header>
+    <main>
+      <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post__header">
+  <h1 class="post__title">[译文]JavaScript工作原理</h1>
+  
+  <h2 class="post__subtitle">引擎、运行时、调用栈概述</h2>
+  
+  
+  <h3 class="post__reference"><a href="https://blog.sessionstack.com/how-does-javascript-actually-work-part-1-b0bacc073cf" target="_blank" rel="noopener">How JavaScript works: an overview of the engine, the runtime, and the call stack</a></h3>
+  
+  <div class="post__meta">
+    
+<time class="post__date" datetime="2019-04-22T02:46:28.000Z" itemprop="datePublished">
+  
+  <i class="blogfont">&#xedff;</i>
+  
+  2019-04-22 10:46:28
+</time>
+
+    
+<div class="post__category">
+  <i class="blogfont">&#xe62d;</i>
+  <a class="category-link" href="/categories/Dev/">Dev</a>
+</div>
+  
+
+    
+<div class="post__tag">
+  <i class="blogfont">&#xe7ec;</i>
+  <a class="tag-link" href="/tags/JavaScript/" rel="tag">JavaScript</a>, <a class="tag-link" href="/tags/Translation/" rel="tag">Translation</a>
+</div>
+
+
+    <div id="/2019-04-22/translation-how-javascript-works-part-1/" class="leancloud_visitors post__stat" data-flag-title="[译文]JavaScript工作原理">
+  <i class="blogfont">&#xe672;</i>
+  <span class="leancloud-visitors-count">loading...</span>
+</div>
+  </div>
+</header>
+  <aside class="post__aside">
+  <div class="post__actions">
+    <a id="backTop" class="post__top" href="javascript:">
+      <i class="blogfont">&#xe6b1;</i><!-- 回到顶部 -->
+    </a>
+    <!-- <a id="share" class="post__share" href="javascript:">
+      <i class="blogfont">&#xe6c1;</i>
+    </a> -->
+  </div>
+  <ol class="post__toc"><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#概述"><span class="post__toc-text">概述</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#JavaScript引擎"><span class="post__toc-text">JavaScript引擎</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#运行时"><span class="post__toc-text">运行时</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#调用栈"><span class="post__toc-text">调用栈</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#并发和事件循环"><span class="post__toc-text">并发和事件循环</span></a></li></ol>
+</aside>
+  <div class="post__content" itemprop="articleBody">
+    <p>随着 <code>JavaScript</code> 越来越流行，开发团队也更多地利用其来支持技术栈的各方面，前端、后端、混合应用、嵌入式设备等。</p>
+<p>本文是旨在深入挖掘 <code>JavaScript</code> 其工作原理系列教程的首篇：我们认为通过了解 <code>JavaScript</code> 的构建单元并熟悉它们是怎样结合起来的，有助于你写出更好的代码和应用。我们也会分享一些在构建 <code>SessionStack</code> 应用时用到的经验法则，为了维持其竞争力它是一个健壮、高性能的轻量级 <code>JavaScript</code> 应用。</p>
+<p>如<a href="http://githut.info/" target="_blank" rel="noopener">GitHut stats</a>所示，<code>JavaScript</code> 在活跃仓库数和<code>GitHub</code>总推送数方面位于首位。在其他类别排名中落后的也不多。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/3497104-5f1a6a16081274af.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="GitHut stats"></p>
+<p><a href="https://madnight.github.io/githut/" target="_blank" rel="noopener">（查看最新的统计）</a>。</p>
+<p>如果项目变得如此依赖 <code>JavaScript</code> ，这就意味着开发者必须更加深入地理解其内部原理以充分利用语言和其生态提供的所有内容，从而构建更棒的软件。</p>
+<p>事实显示，许多开发者每天都在使用 <code>JavaScript</code> 却不知其底层发生了什么。</p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>几乎每个人都听说过 <code>V8</code> 引擎的概念，大多数人也知道 <code>JavaScript</code> 是单线程的或者使用回调队列。</p>
+<p>在本文中，我们会详细讲解这些概念并阐述 <code>JavaScript</code> 是如何运行的。通过了解这些细节，你就可以利用提供的 <code>APIs</code> 写出更好的、无阻塞的应用。</p>
+<p>如果你对 <code>JavaScript</code> 相对陌生，这个博客可以帮助你理解为何与其他语言相比 <code>JavaScript</code> 如此怪异。</p>
+<p>如果你是位经验丰富的 <code>JavaScript</code> 开发人员，也希望能提供给你一些每天都在使用的 <code>JavaScript</code> 运行时实际运作机制的新见解。</p>
+<h2 id="JavaScript引擎"><a href="#JavaScript引擎" class="headerlink" title="JavaScript引擎"></a><code>JavaScript</code>引擎</h2><p>JS引擎的一个最流行的例子就是谷歌的 <code>V8</code>。 <code>V8</code> 引擎使用在例如 <code>Chrome</code> 浏览器和 <code>Node.js</code> 中。下图是一个引擎组成部分的极简视图：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/3497104-9b5f7cb4b297c7d9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="JS Engine"></p>
+<p>引擎由以下两个主要部分组成：</p>
+<ul>
+<li>内存堆——这是内存分配发生的地方</li>
+<li>调用栈——这是代码执行时的堆栈帧所在位置</li>
+</ul>
+<h2 id="运行时"><a href="#运行时" class="headerlink" title="运行时"></a>运行时</h2><p>几乎所有 <code>JavaScript</code> 开发者都使用过浏览器提供的 <code>APIs</code>（如 <code>setTimeout</code>）。但是那些 <code>APIs</code> 并不由引擎提供。</p>
+<p>那么，它们来自哪里？</p>
+<p>其实实际情况更加复杂一些。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/3497104-36080fb1a26b82f4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="JS Runtime"></p>
+<p>所以，除了引擎之外实际上还有更多东西。我们还有那些由浏览器提供 <code>Web APIs</code>，如 <code>DOM</code>、<code>AJAX</code>、<code>setTimeout</code> 等等。</p>
+<p>并且，我们还有非常流行的<strong>事件循环</strong>和<strong>回调队列</strong>。</p>
+<h2 id="调用栈"><a href="#调用栈" class="headerlink" title="调用栈"></a>调用栈</h2><p><code>JavaScript</code> 是单线程编程语言，意味着它只有单一的调用栈。因此它一次只能做一件事。</p>
+<p><strong>调用栈是一种数据结构，基本记录了程序运行的位置</strong>。如果进入一个函数，就会把它推入到栈顶部。如果函数返回，就会将函数从栈顶部移除。这就是栈能做的事情。</p>
+<p>举个例子，先来看如下所示的代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">multiply</span>(<span class="params">x, y</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> x * y;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">printSquare</span>(<span class="params">x</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> s = multiply(x, x);</span><br><span class="line">    <span class="built_in">console</span>.log(s);</span><br><span class="line">&#125;</span><br><span class="line">printSquare(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+
+<p>当引擎开始执行这段代码时，调用栈将是空的。之后的步骤如下图所示：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/3497104-0ce0f5ff212930e5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Call Stack"></p>
+<p>调用栈的每一次进入称为栈帧。</p>
+<p>这正是抛出异常时栈追踪的构造过程——这基本上就是异常抛出时调用栈的状态。看看下面的代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'SessionStack will help you resolve crashes :)'</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    foo();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">start</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    bar();</span><br><span class="line">&#125;</span><br><span class="line">start();</span><br></pre></td></tr></table></figure>
+
+<p>在 <code>Chrome</code> 中执行这段代码时（假设这些代码在foo.js文件中），会产生如下的栈追踪记录：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/3497104-599471a5dbdcd0b0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Stack Frame"></p>
+<p>“<strong>栈溢出</strong>”——发生在达到最大调用栈的大小时。这非常容易发生，尤其是当你使用了递归而未进行足够的测试时，看看如下示例代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    foo();</span><br><span class="line">&#125;</span><br><span class="line">foo();</span><br></pre></td></tr></table></figure>
+
+<p>当引擎开始执行这段代码时，从调用 <code>foo</code> 函数开始。然而这个函数是递归的，它开始调用自己而没有任何终止条件。所以在执行的每一步中，相同的函数一次又一次添加到调用栈里。它看起来是这样的：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/3497104-bd7e18cfb7252d65.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Blowing the stack"></p>
+<p>但是，在某个时候，调用栈中函数的数量超过了它的实际大小，这时浏览器决定采取一些行动，抛出异常，它是这样的：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/3497104-ba8de1bfa2b516d9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Stack Overflow"></p>
+<p>在单线程上运行代码十分简单，因为不需要处理在多线程环境中遇到的复杂场景——例如，死锁。</p>
+<p>但单线程上的代码运行也相当受限。由于 <code>JavaScript</code> 只有单一的调用栈，当运行非常慢时会发生什么呢？</p>
+<h2 id="并发和事件循环"><a href="#并发和事件循环" class="headerlink" title="并发和事件循环"></a>并发和事件循环</h2><p>当调用栈中存在大量耗时才能处理的函数时会发生什么？例如，假设你需要在浏览器中使用 <code>JavaScript</code> 执行某些非常复杂的图像转换。</p>
+<p>你也许会问——这有什么问题？问题在于当调用栈中有函数等待执行时，浏览器实际上无法做其他事情——它被阻塞了。这意味着浏览器无法继续渲染，也不能运行其他代码，它只是卡住了。如果你希望拥有流畅的用户体验，这就成了问题。</p>
+<p>这并不是唯一的问题。一旦你的浏览器开始执行栈里如此之多的任务，它可能会在相当长的时间里暂停响应。大多数浏览器会采取报错的行为，询问你是否要关闭页面。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/3497104-74e240ae3cd7fe07.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Page Unresponsive"></p>
+<p>这可不是最好的用户体验，不是吗？</p>
+<p>那么，我们要怎样在既不阻塞 <code>UI</code> 又不导致浏览器无响应的情况下执行大量的代码呢？解决方案是：<strong>异步回调</strong>。</p>
+<p>这将在《JavaScript工作原理》教程的第二部分详细解释。</p>
+
+  </div>
+  
+  <section id="comments" class="comments">
+    <div class="valine-comment"></div>
+<!--载入js，在</body>之前插入即可-->
+<!--Leancloud 操作库:-->
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<!--Valine 的核心代码库-->
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<script>
+new Valine({
+    el: '.valine-comment',
+    app_id: 'DKiK5z8iNqcTBYteGEiuxyaP-gzGzoHsz',
+    app_key: '0SPtM0nGzQdGBXxpwbOSLTXV',
+    placeholder: '有什么话想告诉我？',
+    visitor: 'true',
+  })
+</script>
+  </section>
+  
+</article>
+    </main>
+    <footer id="footer">
+  Copyright &copy; 2025 Shio  
+  <a class="social-links" href="https://github.com/ushio-s"
+    ><i class="blogfont">&#xe6b7; </i></a
+  >
+  
+  <a class="social-links" href="mailto:jylzs369@163.com"
+    ><i class="blogfont">&#xe61a; </i></a
+  >
+  
+  <a class="social-links" href="https://www.jianshu.com/u/70c1c469e3b6"
+    ><i class="blogfont">&#xe6d7; </i></a
+  >
+  
+  <a class="social-links" href="https://www.zhihu.com/people/jylzs369"
+    ><i class="blogfont">&#xe606; </i></a
+  >
+  
+  <a class="social-links" href="/atom.xml"
+    ><i class="blogfont">&#xe640; </i></a
+  >
+    <a href="https://beian.miit.gov.cn/" title="粤ICP备20052180号" target="_blank" rel="noopener">粤ICP备20052180号</a>
+</footer>
+
+    <!-- scripts -->
+
+<script src="/scripts/main.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html  lang=zh-CN>
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  
+    
+    <link rel="shortcut icon" href="/images/favicon.ico ">
+    
+    
+    <link rel="icon" type="image/png" href="/images/favicon-android.png " sizes="192x192">
+    
+    
+    <link rel="apple-touch-icon" href="/images/favicon-apple.png " sizes="180x180">
+    
+  
+  <!-- title -->
+  <title>Shio&#39;s Psycology Life [译文] APP以原生的方式在Web和移动端工作 </title>
+  <!-- styles -->
+  <!-- styles -->
+
+<link rel="stylesheet" href="/styles/global.css">
+
+  <!-- rss -->
+  
+  <link rel="alternate" href="/atom.xml" title="Shio&#39;s Psycology Life" type="application/atom+xml" />
+  
+<meta name="generator" content="Hexo 4.2.1"></head>
+  <body>
+    <header id="header">
+  
+  <nav class="menu menu--right">
+  
+    <a class="menu__item" href="/">主页</a>
+    <a class="menu__item" href="/archives/">归档</a>
+    <a class="menu__item" href="/categories/">专题</a>
+    <a class="menu__item" href="/tags/">标签</a>
+    <!-- <a class="menu__item" href="/">作品</a> -->
+    <!-- <a class="menu__item" href="/about/">关于</a> -->
+  </nav>
+</header>
+    <main>
+      <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post__header">
+  <h1 class="post__title">[译文] APP以原生的方式在Web和移动端工作</h1>
+  
+  
+  <h3 class="post__reference"><a href="https://blog.angular.io/apps-that-work-natively-on-the-web-and-mobile-9b26852495e7" target="_blank" rel="noopener">Apps That Work Natively on the Web and Mobile</a></h3>
+  
+  <div class="post__meta">
+    
+<time class="post__date" datetime="2018-09-18T08:24:48.000Z" itemprop="datePublished">
+  
+  <i class="blogfont">&#xedff;</i>
+  
+  2018-09-18 16:24:48
+</time>
+
+    
+<div class="post__category">
+  <i class="blogfont">&#xe62d;</i>
+  <a class="category-link" href="/categories/Dev/">Dev</a>
+</div>
+  
+
+    
+<div class="post__tag">
+  <i class="blogfont">&#xe7ec;</i>
+  <a class="tag-link" href="/tags/Angular/" rel="tag">Angular</a>, <a class="tag-link" href="/tags/NativeScript/" rel="tag">NativeScript</a>, <a class="tag-link" href="/tags/Translation/" rel="tag">Translation</a>
+</div>
+
+
+    <div id="/2018-09-18/translation-apps-that-work-natively-on-the-web-and-mobile/" class="leancloud_visitors post__stat" data-flag-title="[译文] APP以原生的方式在Web和移动端工作">
+  <i class="blogfont">&#xe672;</i>
+  <span class="leancloud-visitors-count">loading...</span>
+</div>
+  </div>
+</header>
+  <aside class="post__aside">
+  <div class="post__actions">
+    <a id="backTop" class="post__top" href="javascript:">
+      <i class="blogfont">&#xe6b1;</i><!-- 回到顶部 -->
+    </a>
+    <!-- <a id="share" class="post__share" href="javascript:">
+      <i class="blogfont">&#xe6c1;</i>
+    </a> -->
+  </div>
+  <ol class="post__toc"><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#代码共享的梦想"><span class="post__toc-text">代码共享的梦想</span></a><ol class="post__toc-child"><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#共享或不共享"><span class="post__toc-text">共享或不共享</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#开始"><span class="post__toc-text">开始</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#构建过程"><span class="post__toc-text">构建过程</span></a><ol class="post__toc-child"><li class="post__toc-item post__toc-level-4"><a class="post__toc-link" href="#构建Web"><span class="post__toc-text">构建Web</span></a></li><li class="post__toc-item post__toc-level-4"><a class="post__toc-link" href="#构建移动应用"><span class="post__toc-text">构建移动应用</span></a></li></ol></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#代码分离"><span class="post__toc-text">代码分离</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#组件——代码共享的格式"><span class="post__toc-text">组件——代码共享的格式</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#Angular模块的代码分离方式：HttpClient"><span class="post__toc-text">Angular模块的代码分离方式：HttpClient</span></a></li></ol></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#示例项目"><span class="post__toc-text">示例项目</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#总结"><span class="post__toc-text">总结</span></a></li></ol>
+</aside>
+  <div class="post__content" itemprop="articleBody">
+    <p><img src="https://cdn-images-1.medium.com/max/1000/1*ab_36pX6F7h5x3JnuvGC4Q.png" alt="Shared Project"></p>
+<p>今天，我们非常高兴地宣布了一种将Angular与NativeScript结合起来构建web和移动端应用的令人激动的新方式。</p>
+<p>首先，介绍一些背景：从Angular一开始，你就可以使用NativeScript结合Angular来创建移动应用。</p>
+<blockquote>
+<p>NativeScript是一个使用JavaScript创建真实原生移动端应用的开源框架。它让你可以使用已有的Angular技术构建项目，最终得到的结果具有iOS和Android原生的UI和性能表现。</p>
+</blockquote>
+<p>但是，如果你需要<strong>同时</strong>构建web和原生移动应用，你还是得创建、开发和维护两个分离的项目。虽然这样也能完成任务，但显然我们可以比这做得更好。</p>
+<h2 id="代码共享的梦想"><a href="#代码共享的梦想" class="headerlink" title="代码共享的梦想"></a>代码共享的梦想</h2><p>这一挑战引出一个梦想——<strong>代码共享项目</strong>。这是一个允许你将Web和移动应用的代码保存在同一处的项目。它也可以让我们在web、iOS和Android之间共享业务逻辑，同时保证在需要时包含平台特殊代码的灵活性。</p>
+<p>随着 <strong>Schematics</strong> 和 <strong>ng add</strong> 的出现，我们有了一整套全新的可能性。</p>
+<p>为了实现代码共享项目，Angular和NativeScript团队联手创建了 <a href="https://github.com/nativescript/nativescript-schematics" target="_blank" rel="noopener">nativescript-schematics</a>，一个能够从单一项目构建web和移动应用的程式示意图。</p>
+<blockquote>
+<p>请注意要使用@nativescript/schematics，必须保证@angular/cli是6.1.0以上版本。</p>
+</blockquote>
+<p>我们来看看哪些场景可以使用 Angular CLI 和 {N} Schematics：</p>
+<ul>
+<li>使用代码共享结构创建的新项目</li>
+<li>将已有web项目转换成代码共享结构</li>
+</ul>
+<p>然后：</p>
+<ul>
+<li>将已存在组件和模块转化成代码共享格式</li>
+<li>生成新的代码共享格式的组件和模块</li>
+</ul>
+<h3 id="共享或不共享"><a href="#共享或不共享" class="headerlink" title="共享或不共享"></a>共享或不共享</h3><p>这套工具的目的是尽可能多的共享代码，分离平台专有代码到单独的文件中。</p>
+<p>这通常是说我们可以为下列功能共享代码：</p>
+<ul>
+<li>实现导航的<strong>路由</strong></li>
+<li>为公共业务逻辑提供的<strong>服务</strong></li>
+<li>管理组件公共行为的<strong>组件类定义</strong></li>
+</ul>
+<p>同时我们分离下列文件：</p>
+<ul>
+<li><strong>UI表现层（样式表和html文件)）</strong>——因为在web和NativeScript构建的原生APP中需要使用不同的用户界面。</li>
+<li><strong>angular模块</strong>——这样我们可以导入平台专有的模块，避免web和移动端冲突。(例如，Angular Material Design——仅供Web)。</li>
+</ul>
+<p>下面这张示意图让我们能够从更高层面一览构建逻辑。</p>
+<p><img src="https://cdn-images-1.medium.com/max/1000/1*GW5nqEDJ48NndzZK1zj3vQ.png" alt="Build Process"></p>
+<h3 id="开始"><a href="#开始" class="headerlink" title="开始"></a>开始</h3><p>你可以从创建一个代码共享结构的新项目开始。只需要执行 <code>ng new</code> ，并制定collection变量为 <strong>@nativescript/schematics</strong>。</p>
+<p>如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng new --collection&#x3D;@nativescript&#x2F;schematics --name&#x3D;my-app --shared</span><br></pre></td></tr></table></figure>
+
+<p>注意，你需要先安装 <strong>@nativescript/schematics</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install --global @nativescript&#x2F;schematics</span><br></pre></td></tr></table></figure>
+
+<p>或者我们可以扩展现有的web项目，使其能够使用NativeScript构建移动应用程序</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ng add @nativescript&#x2F;schematics</span><br></pre></td></tr></table></figure>
+
+<p>这条命令添加了以下 <strong>NativeScript专有</strong>文件：</p>
+<ul>
+<li>npm模块</li>
+<li>AppModule定义</li>
+<li>AppComponent定义</li>
+<li>tsconfig</li>
+</ul>
+<h3 id="构建过程"><a href="#构建过程" class="headerlink" title="构建过程"></a>构建过程</h3><p>为了完成工作，我们还需要一个能够使用共享文件和平台专有文件的构建过程，来提供web或移动应用。</p>
+<p><img src="https://cdn-images-1.medium.com/max/1000/1*E6BqogQ_1g1N8nWyhVOCMw.png" alt="Shared Project"></p>
+<h4 id="构建Web"><a href="#构建Web" class="headerlink" title="构建Web"></a><em>构建Web</em></h4><p>构建Web应用跟往常的一样，使用Angular CLI来完成工作。</p>
+<p>当执行 <code>ng serve</code> 或 <code>ng build</code> 时，Angular CLI会忽略NativeScript专有文件——因为web文件不会引用任何.tns标识的文件。</p>
+<p><code>ng serve</code> -&gt; 以代码共享目录启动web应用的服务</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"exclude"</span>: [</span><br><span class="line">  <span class="string">"**/*.ns.ts"</span>,</span><br><span class="line">  <span class="string">"**/*.tns.ts"</span>,</span><br><span class="line">  <span class="string">"**/*.android.ts"</span>,</span><br><span class="line">  <span class="string">"**/*.ios.ts"</span></span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<h4 id="构建移动应用"><a href="#构建移动应用" class="headerlink" title="构建移动应用"></a><em>构建移动应用</em></h4><p>用 <strong>NativeScript</strong> 构建iOS或Android应用，我们需要使用<a href="https://www.npmjs.com/package/nativescript" target="_blank" rel="noopener">NativeScript CLI</a> 和 <a href="https://www.npmjs.com/package/nativescript-dev-webpack" target="_blank" rel="noopener">NativeScript Webpack plugin</a>。</p>
+<p>调用：</p>
+<ul>
+<li><code>tns run ios --bundle</code> ——构建iOS应用</li>
+<li><code>tns run android --bundle</code> ——构建Android应用</li>
+</ul>
+<p>在构建时，<strong>Webpack</strong> 会处理有提供了.tns标识的文件，然后隐藏web版的文件（实际上，像<strong>home.component.tns.html</strong>这样的文件，会被当作<strong>home.component.html</strong>来处理）。同时<strong>NativeScript CLI</strong> 的职责是构建原生移动应用。</p>
+<h3 id="代码分离"><a href="#代码分离" class="headerlink" title="代码分离"></a>代码分离</h3><p>在共享代码之前，我们需要知道怎么分离Web和移动端代码。这非常重要，这样我们便可以简单无冲突地创建平台专有代码。</p>
+<p>我们可以使用一个简单的 <strong>命名空间</strong> 来达到这个目的。通过在文件扩展名之前添加 <strong>.tns</strong>，用来表示这个文件是NativeScript专有的，同时没有使用 <strong>.tns</strong> 扩展的文件就被认为是Web专有的。如果我们只有一个文件没有使用 <strong>.tns</strong> 扩展，它就被当做一个共享文件。</p>
+<h3 id="组件——代码共享的格式"><a href="#组件——代码共享的格式" class="headerlink" title="组件——代码共享的格式"></a>组件——代码共享的格式</h3><p>最常见的场景是一个组件的代码，我们经常有这些文件：</p>
+<ul>
+<li><strong>name.component.ts</strong>——组件类定义共享文件</li>
+<li><strong>name.component.html</strong>——Web专有模板</li>
+<li><strong>name.component.tns.html</strong>——移动专有模板</li>
+<li><strong>name.component.css</strong>——Web专有样式表</li>
+<li><strong>name.component.tns.css</strong>——移动专有模板</li>
+</ul>
+<p><img src="https://cdn-images-1.medium.com/max/1000/1*qKw7Ctykc2zB2E5OaqfXAg.png" alt="file namespace"></p>
+<p>同样值得注意的是，在@Component装饰器中，templateUrl和styleUrls指向的文件不包括.tns扩展，因为这是由构建过程处理的。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Component(&#123;</span><br><span class="line">  selector: <span class="string">'app-name'</span>,</span><br><span class="line">  templateUrl: <span class="string">'./name.component.html'</span>,</span><br><span class="line">  styleUrls: [<span class="string">'./name.component.css'</span>],</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Angular模块的代码分离方式：HttpClient"><a href="#Angular模块的代码分离方式：HttpClient" class="headerlink" title="Angular模块的代码分离方式：HttpClient"></a>Angular模块的代码分离方式：HttpClient</h3><p>配合NgModules来分离代码是非常有用的，因为你经常需要导入Web或NativeScript专有的模块。</p>
+<p>一个非常好的例子是当你需要调用一个HTTP请求时，在Web应用中，你需要导入 <strong>HttpClientModule</strong> 模块，它提供了 <strong>HttpClient</strong> 的实现。</p>
+<p>但是，浏览器里HTTP请求的执行方式与在iOS和Android里不同，在NativeScript中，你需要使用 <strong>NativeScriptHttpClientModule</strong> 模块，它提供了与 <strong>HttpClient</strong> 等价的执行。</p>
+<p>现在，你可以使用代码分离技术创建两个版本的@NgModule——每个版本使用不同版本的 <strong>HttpClientModule</strong> 模块——然后在依赖注入的帮助下向服务提供正确的 <strong>HttpClient</strong> 实现。</p>
+<p><img src="https://cdn-images-1.medium.com/max/1000/1*ytfIpjgSZ-x0Q_4O0fpbsQ.png" alt="Code Separation"></p>
+<ul>
+<li><strong>my.module.ts</strong>——导入 <strong>HttpClientModule</strong> 的Web版模块文件<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; HttpClientModule &#125; <span class="keyword">from</span> <span class="string">'@angular/common/http'</span>;</span><br><span class="line">@NgModule(&#123;</span><br><span class="line">  imports: [</span><br><span class="line">    HttpClientModule,</span><br><span class="line">    …</span><br><span class="line">  ]</span><br><span class="line">  …</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></li>
+<li><strong>my.module.tns.ts</strong>——导入 <strong>NativeScriptHttpClientModule</strong> 的移动端版模块文件<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; NativeScriptHttpClientModule &#125; <span class="keyword">from</span> <span class="string">'nativescript-angular/http-client'</span>;</span><br><span class="line">@NgModule(&#123;</span><br><span class="line">  imports: [</span><br><span class="line">    NativeScriptHttpClientModule,</span><br><span class="line">    …</span><br><span class="line">  ]</span><br><span class="line">  …</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="class"><span class="keyword">class</span> <span class="title">MyModule</span> </span>&#123; &#125;</span><br></pre></td></tr></table></figure></li>
+<li><strong>my.service.ts</strong>——注入<strong>HttpClient</strong> 的共享服务文件</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; Injectable &#125; <span class="keyword">from</span> <span class="string">'@angular/core'</span>;</span><br><span class="line"><span class="keyword">import</span> &#123; HttpClient &#125; <span class="keyword">from</span> <span class="string">'@angular/common/http'</span>;</span><br><span class="line">@Injectable()</span><br><span class="line"><span class="keyword">export</span> <span class="class"><span class="keyword">class</span> <span class="title">MyService</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(private http: HttpClient) &#123; &#125;</span><br><span class="line">  …</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>模块的代码分离是一种简单而优雅的解决方案。它使你能够将具有不同实现（针对Web和移动端应用）的功能整合到一起，从而最大化共享代码。</p>
+<h2 id="示例项目"><a href="#示例项目" class="headerlink" title="示例项目"></a>示例项目</h2><p>如果你有兴趣看看实现了如下功能的共享项目：</p>
+<ul>
+<li>共享导航</li>
+<li>懒加载</li>
+<li>授权保护</li>
+<li>基于NgModule的Angular Material组件和NativeScript UI插件的代码分离</li>
+<li>一个独立的用户服务</li>
+<li>共享组件和分离的UI组件</li>
+<li>可爱宠物领养</li>
+</ul>
+<p>可以访问我们的示例项目<a href="https://github.com/sebawita/pet-bros-lite" target="_blank" rel="noopener">pet-bros-lite</a>，它展示了所有这些代码共享概念的实际应用！</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>如你所见，通过一个项目同时构建Web和移动应用相当简单。你可以从一个新项目开始（使用ng new），或者向已有项目中添加移动端代码（使用ng add）。还有一个简单的命名空间约定来支持代码分离，它使你可以覆盖到多数应用场景。</p>
+<p><a href="https://docs.nativescript.org/code-sharing/intro" target="_blank" rel="noopener">尝试一下代码分离</a>，它是如此的简单。你与在Angular中进行代码分离只有简单的 <code>ng add</code> 或 <code>ng new</code>一步。</p>
+
+  </div>
+  
+  <section id="comments" class="comments">
+    <div class="valine-comment"></div>
+<!--载入js，在</body>之前插入即可-->
+<!--Leancloud 操作库:-->
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<!--Valine 的核心代码库-->
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<script>
+new Valine({
+    el: '.valine-comment',
+    app_id: 'DKiK5z8iNqcTBYteGEiuxyaP-gzGzoHsz',
+    app_key: '0SPtM0nGzQdGBXxpwbOSLTXV',
+    placeholder: '有什么话想告诉我？',
+    visitor: 'true',
+  })
+</script>
+  </section>
+  
+</article>
+    </main>
+    <footer id="footer">
+  Copyright &copy; 2025 Shio  
+  <a class="social-links" href="https://github.com/ushio-s"
+    ><i class="blogfont">&#xe6b7; </i></a
+  >
+  
+  <a class="social-links" href="mailto:jylzs369@163.com"
+    ><i class="blogfont">&#xe61a; </i></a
+  >
+  
+  <a class="social-links" href="https://www.jianshu.com/u/70c1c469e3b6"
+    ><i class="blogfont">&#xe6d7; </i></a
+  >
+  
+  <a class="social-links" href="https://www.zhihu.com/people/jylzs369"
+    ><i class="blogfont">&#xe606; </i></a
+  >
+  
+  <a class="social-links" href="/atom.xml"
+    ><i class="blogfont">&#xe640; </i></a
+  >
+    <a href="https://beian.miit.gov.cn/" title="粤ICP备20052180号" target="_blank" rel="noopener">粤ICP备20052180号</a>
+</footer>
+
+    <!-- scripts -->
+
+<script src="/scripts/main.js"></script>
+
+  </body>
+</html>

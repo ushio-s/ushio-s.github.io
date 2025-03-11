@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html  lang=zh-CN>
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  
+    
+    <link rel="shortcut icon" href="/images/favicon.ico ">
+    
+    
+    <link rel="icon" type="image/png" href="/images/favicon-android.png " sizes="192x192">
+    
+    
+    <link rel="apple-touch-icon" href="/images/favicon-apple.png " sizes="180x180">
+    
+  
+  <!-- title -->
+  <title>Shio&#39;s Psycology Life Vue源码探究-生命周期 </title>
+  <!-- styles -->
+  <!-- styles -->
+
+<link rel="stylesheet" href="/styles/global.css">
+
+  <!-- rss -->
+  
+  <link rel="alternate" href="/atom.xml" title="Shio&#39;s Psycology Life" type="application/atom+xml" />
+  
+<meta name="generator" content="Hexo 4.2.1"></head>
+  <body>
+    <header id="header">
+  
+  <nav class="menu menu--right">
+  
+    <a class="menu__item" href="/">主页</a>
+    <a class="menu__item" href="/archives/">归档</a>
+    <a class="menu__item" href="/categories/">专题</a>
+    <a class="menu__item" href="/tags/">标签</a>
+    <!-- <a class="menu__item" href="/">作品</a> -->
+    <!-- <a class="menu__item" href="/about/">关于</a> -->
+  </nav>
+</header>
+    <main>
+      <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post__header">
+  <h1 class="post__title">Vue源码探究-生命周期</h1>
+  
+  
+  <div class="post__meta">
+    
+<time class="post__date" datetime="2018-07-10T07:36:18.000Z" itemprop="datePublished">
+  
+  <i class="blogfont">&#xedff;</i>
+  
+  2018-07-10 15:36:18
+</time>
+
+    
+<div class="post__category">
+  <i class="blogfont">&#xe62d;</i>
+  <a class="category-link" href="/categories/Dev/">Dev</a>, <a class="category-link" href="/categories/Dev/Explore-Vue/">Explore Vue</a>
+</div>
+  
+
+    
+<div class="post__tag">
+  <i class="blogfont">&#xe7ec;</i>
+  <a class="tag-link" href="/tags/Vue/" rel="tag">Vue</a>
+</div>
+
+
+    <div id="/2018-07-10/vue-life-cycle/" class="leancloud_visitors post__stat" data-flag-title="Vue源码探究-生命周期">
+  <i class="blogfont">&#xe672;</i>
+  <span class="leancloud-visitors-count">loading...</span>
+</div>
+  </div>
+</header>
+  <aside class="post__aside">
+  <div class="post__actions">
+    <a id="backTop" class="post__top" href="javascript:">
+      <i class="blogfont">&#xe6b1;</i><!-- 回到顶部 -->
+    </a>
+    <!-- <a id="share" class="post__share" href="javascript:">
+      <i class="blogfont">&#xe6c1;</i>
+    </a> -->
+  </div>
+  <ol class="post__toc"><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#生命周期初始化属性"><span class="post__toc-text">生命周期初始化属性</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#生命周期初始化方法"><span class="post__toc-text">生命周期初始化方法</span></a><ol class="post__toc-child"><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#私有方法-update"><span class="post__toc-text">私有方法 _update</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#公用方法-forceUpdate"><span class="post__toc-text">公用方法 $forceUpdate</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#公用方法-destroy"><span class="post__toc-text">公用方法 $destroy</span></a></li></ol></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#生命周期过程"><span class="post__toc-text">生命周期过程</span></a><ol class="post__toc-child"><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#生命周期钩子"><span class="post__toc-text">生命周期钩子</span></a></li></ol></li></ol>
+</aside>
+  <div class="post__content" itemprop="articleBody">
+    <p><em>本篇代码位于<a href="https://github.com/vuejs/vue/blob/v2.5.17-beta.0/src/core/instance/lifecycle.js" target="_blank" rel="noopener">vue/src/core/instance/lifecycle.js</a></em></p>
+<p>初步探索完了核心类的实现之后，接下来就要开始深入到Vue实现的具体功能部分了。在所有的功能开始运行之前，要来理解一下Vue的生命周期，在初始化函数中所有功能模块绑定到Vue的核心类上之前，最先开始执行了一个初始化生命周期的函数<code>initLifecycle(vm)</code>，先来看看这个函数做了些什么。</p>
+<h2 id="生命周期初始化属性"><a href="#生命周期初始化属性" class="headerlink" title="生命周期初始化属性"></a>生命周期初始化属性</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 导出initLifecycle函数，接受一个Component类型的vm参数</span></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">initLifecycle</span> (<span class="params">vm: Component</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 获取实例的$options属性，赋值为options变量</span></span><br><span class="line">  <span class="keyword">const</span> options = vm.$options</span><br><span class="line"></span><br><span class="line"> <span class="comment">// 找到最上层非抽象父级</span></span><br><span class="line">  <span class="comment">// locate first non-abstract parent</span></span><br><span class="line">  <span class="comment">// 首先找到第一个父级</span></span><br><span class="line">  <span class="keyword">let</span> parent = options.parent</span><br><span class="line">  <span class="comment">// 判断是否存在且非抽象</span></span><br><span class="line">  <span class="keyword">if</span> (parent &amp;&amp; !options.abstract) &#123;</span><br><span class="line">    <span class="comment">// 遍历寻找最外层的非抽象父级</span></span><br><span class="line">    <span class="keyword">while</span> (parent.$options.abstract &amp;&amp; parent.$parent) &#123;</span><br><span class="line">      parent = parent.$parent</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 将实例添加到最外层非抽象父级的子组件中</span></span><br><span class="line">    parent.$children.push(vm)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化实例的公共属性</span></span><br><span class="line">  <span class="comment">// 设置父级属性，如果之前的代码未找到父级，则vm.$parent为undefined</span></span><br><span class="line">  vm.$parent = parent</span><br><span class="line">  <span class="comment">// 设置根属性，没有父级则为实例对象自身</span></span><br><span class="line">  vm.$root = parent ? parent.$root : vm</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化$children和$refs属性</span></span><br><span class="line">  <span class="comment">// vm.$children是子组件的数组集合</span></span><br><span class="line">  <span class="comment">// vm.$refs是指定引用名称的组件对象集合</span></span><br><span class="line">  vm.$children = []</span><br><span class="line">  vm.$refs = &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 初始化一些私有属性</span></span><br><span class="line">  <span class="comment">// 初始化watcher</span></span><br><span class="line">  vm._watcher = <span class="literal">null</span></span><br><span class="line">  <span class="comment">// _inactive和_directInactive是判断激活状态的属性</span></span><br><span class="line">  vm._inactive = <span class="literal">null</span></span><br><span class="line">  vm._directInactive = <span class="literal">false</span></span><br><span class="line">  <span class="comment">// 生命周期相关的私有属性</span></span><br><span class="line">  vm._isMounted = <span class="literal">false</span></span><br><span class="line">  vm._isDestroyed = <span class="literal">false</span></span><br><span class="line">  vm._isBeingDestroyed = <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>initLifecycle</code> 函数非常简单明了，主要是在生命周期开始之前设置一些相关的属性的初始值。一些属性将在之后的生命周期运行期间使用到。</p>
+<h2 id="生命周期初始化方法"><a href="#生命周期初始化方法" class="headerlink" title="生命周期初始化方法"></a>生命周期初始化方法</h2><p>生命周期的开始除了设置了相关属性的初始值之外，还为类原型对象挂载了一些方法，包括私有的更新组件的方法和公用的生命周期相关的方法。这些方法都包含在 <code>lifecycleMixin</code> 函数中，还记得这也是在定义核心类之后执行的那些函数之一，也来看看它的内容。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 导出lifecycleMixin函数，接收形参Vue，</span></span><br><span class="line"><span class="comment">// 使用Flow进行静态类型检查指定为Component类</span></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">lifecycleMixin</span> (<span class="params">Vue: Class&lt;Component&gt;</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 为Vue原型对象挂载_update私有方法</span></span><br><span class="line">  <span class="comment">// 接收vnode虚拟节点类型参数和一个可选的布尔值hydrating</span></span><br><span class="line">  Vue.prototype._update = <span class="function"><span class="keyword">function</span> (<span class="params">vnode: VNode, hydrating?: boolean</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 定义实例变量</span></span><br><span class="line">    <span class="keyword">const</span> vm: Component = <span class="keyword">this</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 下面三条赋值操作主要是为了存储属性</span></span><br><span class="line">    <span class="comment">// 实例的$el属性赋值给prevEl变量，这是新传入的实例挂载元素</span></span><br><span class="line">    <span class="keyword">const</span> prevEl = vm.$el</span><br><span class="line">    <span class="comment">// 实例的_vnode属性赋值给prevVnode变量，储存的旧虚拟节点</span></span><br><span class="line">    <span class="keyword">const</span> prevVnode = vm._vnode</span><br><span class="line">    <span class="comment">// 将activeInstance赋值给prevActiveInstance变量，激活实例</span></span><br><span class="line">    <span class="comment">// activeInstance初始为null</span></span><br><span class="line">    <span class="keyword">const</span> prevActiveInstance = activeInstance</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 下面是针对新属性的赋值</span></span><br><span class="line">    <span class="comment">// 将新实例设置为activeInstance</span></span><br><span class="line">    activeInstance = vm</span><br><span class="line">    <span class="comment">// 将传入的vnode赋值给实例的_vnode属性</span></span><br><span class="line">    <span class="comment">// vnode是新生成的虚拟节点数，这里把它储存起来覆盖</span></span><br><span class="line">    vm._vnode = vnode</span><br><span class="line">    <span class="comment">// 下面使用到的Vue.prototype .__ patch__方法是在运行时里注入的</span></span><br><span class="line">    <span class="comment">// 根据运行平台的不同定义</span></span><br><span class="line">    <span class="comment">// Vue.prototype.__patch__ is injected in entry points</span></span><br><span class="line">    <span class="comment">// based on the rendering backend used.</span></span><br><span class="line">    <span class="comment">// 如果prevVnode属性不存在说明是新创建实例</span></span><br><span class="line">    <span class="comment">// 执行实例属性$el的初始化渲染，否则更新节点</span></span><br><span class="line">    <span class="keyword">if</span> (!prevVnode) &#123;</span><br><span class="line">      <span class="comment">// 如果旧的虚拟节点不存在则调用patch方法</span></span><br><span class="line">      <span class="comment">// 传入挂载的真实DOM节点和新生成的虚拟节点</span></span><br><span class="line">      <span class="comment">// initial render</span></span><br><span class="line">      vm.$el = vm.__patch__(vm.$el, vnode, hydrating, <span class="literal">false</span> <span class="comment">/* removeOnly */</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// 否则执行虚拟节点更新操作，传入的是新旧虚拟节点</span></span><br><span class="line">      <span class="comment">// updates</span></span><br><span class="line">      vm.$el = vm.__patch__(prevVnode, vnode)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将之前的激活实例又赋值给activeInstance</span></span><br><span class="line">    activeInstance = prevActiveInstance</span><br><span class="line">    <span class="comment">// 更新__vue__属性的引用</span></span><br><span class="line">    <span class="comment">// update __vue__ reference</span></span><br><span class="line">    <span class="comment">// 如果存在旧元素则设置它的__vue__引用为null</span></span><br><span class="line">    <span class="keyword">if</span> (prevEl) &#123;</span><br><span class="line">      prevEl.__vue__ = <span class="literal">null</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果实例的$el属性存在，设置它的__vue__引用为该实例</span></span><br><span class="line">    <span class="keyword">if</span> (vm.$el) &#123;</span><br><span class="line">      vm.$el.__vue__ = vm</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果父节点是一个高阶组件，也更新它的元素节点</span></span><br><span class="line">    <span class="comment">// if parent is an HOC, update its $el as well</span></span><br><span class="line">    <span class="keyword">if</span> (vm.$vnode &amp;&amp; vm.$parent &amp;&amp; vm.$vnode === vm.$parent._vnode) &#123;</span><br><span class="line">      vm.$parent.$el = vm.$el</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 更新的钩子由调度器调用，以确保在父更新的钩子中更新子项。</span></span><br><span class="line">    <span class="comment">// updated hook is called by the scheduler to ensure that children are</span></span><br><span class="line">    <span class="comment">// updated in a parent's updated hook.</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 为Vue实例挂载$forceUpdate方法，实现强制更新</span></span><br><span class="line">  Vue.prototype.$forceUpdate = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> vm: Component = <span class="keyword">this</span></span><br><span class="line">    <span class="keyword">if</span> (vm._watcher) &#123;</span><br><span class="line">      vm._watcher.update()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 为Vue实例挂载$destroy方法</span></span><br><span class="line">  Vue.prototype.$destroy = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 定义实例变量</span></span><br><span class="line">    <span class="keyword">const</span> vm: Component = <span class="keyword">this</span></span><br><span class="line">    <span class="comment">// 如果实例已经在销毁中，则返回</span></span><br><span class="line">    <span class="keyword">if</span> (vm._isBeingDestroyed) &#123;</span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 调用beforeDestroy钩子</span></span><br><span class="line">    callHook(vm, <span class="string">'beforeDestroy'</span>)</span><br><span class="line">    <span class="comment">// 给实例设置正在销毁中的标志</span></span><br><span class="line">    vm._isBeingDestroyed = <span class="literal">true</span></span><br><span class="line">    <span class="comment">// 从父组件中移除自身</span></span><br><span class="line">    <span class="comment">// remove self from parent</span></span><br><span class="line">    <span class="keyword">const</span> parent = vm.$parent</span><br><span class="line">    <span class="comment">// 如果非抽象父级组件存在且没有在销毁中，则从父组件中移除实例</span></span><br><span class="line">    <span class="keyword">if</span> (parent &amp;&amp; !parent._isBeingDestroyed &amp;&amp; !vm.$options.abstract) &#123;</span><br><span class="line">      remove(parent.$children, vm)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 销毁所有观察器</span></span><br><span class="line">    <span class="comment">// teardown watchers</span></span><br><span class="line">    <span class="keyword">if</span> (vm._watcher) &#123;</span><br><span class="line">      vm._watcher.teardown()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> i = vm._watchers.length</span><br><span class="line">    <span class="keyword">while</span> (i--) &#123;</span><br><span class="line">      vm._watchers[i].teardown()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 移除对象引用</span></span><br><span class="line">    <span class="comment">// remove reference from data ob</span></span><br><span class="line">    <span class="comment">// frozen object may not have observer.</span></span><br><span class="line">    <span class="keyword">if</span> (vm._data.__ob__) &#123;</span><br><span class="line">      vm._data.__ob__.vmCount--</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 调用最后的钩子</span></span><br><span class="line">    <span class="comment">// call the last hook...</span></span><br><span class="line">    <span class="comment">// 设置实例的已销毁标志</span></span><br><span class="line">    vm._isDestroyed = <span class="literal">true</span></span><br><span class="line">    <span class="comment">// 调用当前渲染树上的销毁钩子</span></span><br><span class="line">    <span class="comment">// invoke destroy hooks on current rendered tree</span></span><br><span class="line">    vm.__patch__(vm._vnode, <span class="literal">null</span>)</span><br><span class="line">    <span class="comment">// 触发销毁钩子</span></span><br><span class="line">    <span class="comment">// fire destroyed hook</span></span><br><span class="line">    callHook(vm, <span class="string">'destroyed'</span>)</span><br><span class="line">    <span class="comment">// turn off all instance listeners.</span></span><br><span class="line">    <span class="comment">// 清除所有监听事件</span></span><br><span class="line">    vm.$off()</span><br><span class="line">    <span class="comment">// 移除实例引用</span></span><br><span class="line">    <span class="comment">// remove __vue__ reference</span></span><br><span class="line">    <span class="keyword">if</span> (vm.$el) &#123;</span><br><span class="line">      vm.$el.__vue__ = <span class="literal">null</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 释放循环引用</span></span><br><span class="line">    <span class="comment">// release circular reference (#6759)</span></span><br><span class="line">    <span class="keyword">if</span> (vm.$vnode) &#123;</span><br><span class="line">      vm.$vnode.parent = <span class="literal">null</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>lifecycleMixin</code> 函数实现了三个原型继承方法：</p>
+<h3 id="私有方法-update"><a href="#私有方法-update" class="headerlink" title="私有方法 _update"></a>私有方法 _update</h3><p>这个函数用于更新组件，实现数据和元素节点的无刷新更新，涉及到虚拟节点相关的一些内容，具体实现留给未来研究虚拟节点和数据更新时再深入探索。</p>
+<h3 id="公用方法-forceUpdate"><a href="#公用方法-forceUpdate" class="headerlink" title="公用方法 $forceUpdate"></a>公用方法 $forceUpdate</h3><p>实现组件强制刷新，这个方法是从实例上设置的watcher对象方法中引用而来，在生命周期初始化的时候为实例设置了一个私有的_watcher属性，在观察者系统的功能模块中具体实现了这一对象，也放到以后在去深入了解。这里只要知道可以调用这个共有的API实现手动更新组件。</p>
+<h3 id="公用方法-destroy"><a href="#公用方法-destroy" class="headerlink" title="公用方法 $destroy"></a>公用方法 $destroy</h3><p>实例销毁方法。在刚开始讨论生命周期的开启时，就了解到了这个销毁Vue实例组件的方法，凡事都有始有终，从这里可以明白无误的认识到，Vue实例是一个生命过程。那么在Vue的生命过程中有哪些重要的阶段，是接下来要继续探索的内容。</p>
+<h2 id="生命周期过程"><a href="#生命周期过程" class="headerlink" title="生命周期过程"></a>生命周期过程</h2><p>最明白无误的生命周期过程在官方文档中有介绍，这里再贴上这张经典的图示来做个纪念。</p>
+<p><img src="https://cn.vuejs.org/images/lifecycle.png" alt="生命周期图示"></p>
+<h3 id="生命周期钩子"><a href="#生命周期钩子" class="headerlink" title="生命周期钩子"></a>生命周期钩子</h3><p>对照生命周期图示中呈现的各种钩子函数，从源码总结了他们的调用时机，顺便又学习一遍钩子执行的线路：</p>
+<ul>
+<li><p>callHook(vm, ‘beforeCreate’)</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">initLifecycle(vm)</span><br><span class="line">initEvents(vm)</span><br><span class="line">initRender(vm)</span><br><span class="line">callHook(vm, <span class="string">'beforeCreate'</span>)</span><br></pre></td></tr></table></figure>
+<p>从 <code>new Vue()</code> 创建实例开始 ，在执行 <code>_init()</code> 方法时开始初始化了生命周期、事件和渲染。紧接着就调用了 <code>beforeCreate</code> 钩子函数。此时与数据相关的属性都还没有初始化 ，所以在这个阶段想要用获取到组件的属性是无法成功的。</p>
+</li>
+<li><p>callHook(vm, ‘created’)</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">initInjections(vm) <span class="comment">// resolve injections before data/props</span></span><br><span class="line">initState(vm)</span><br><span class="line">initProvide(vm) <span class="comment">// resolve provide after data/props</span></span><br><span class="line">callHook(vm, <span class="string">'created'</span>)</span><br></pre></td></tr></table></figure>
+<p>在 <code>beforeCreate</code> 调用后，继续初始化属性注入、状态、子组件属性提供器。然后立即调用 <code>created</code> 钩子，这个时候数据可访问了，但是还没有开始渲染页面，适合一些数据的初始化操作。另外provide和injection主要为高阶插件/组件库提供用例。并不推荐直接用于应用程序代码中，所以此刻我们主要注意的是观察器的初始化完成。<br>到这一步之后，就开始进入渲染流程。</p>
+</li>
+<li><p>callHook(vm, ‘beforeMount’)</p>
+</li>
+</ul>
+<p>渲染的执行流程稍微复杂一些，实例装载方法 <code>$mount</code> 是根据平台的不同需求而分别定义的，在执行 <code>$mount</code> 方法的时候，开始装载组件，具体内容在 <code>mountComponent</code> 函数中，在此函数的最开始时渲染虚拟节点之前就调用了 <code>beforeMount</code> 钩子，然后开始执行 <code>updateComponent</code> 来渲染组件视图。</p>
+<ul>
+<li>callHook(vm, ‘mounted’)</li>
+</ul>
+<p>紧接着上面视图的渲染完成，<code>mounted</code> 钩子被调用。在这个钩子中还调用了内部的插入钩子渲染引用的子组件，这之后就开始处于生命周期的正常运转期。在这个时期内观察器系统开始监控所有的数据更新，进入数据更新并重新渲染视图的循环中。</p>
+<ul>
+<li>callHook(vm, ‘beforeUpdate’)</li>
+</ul>
+<p>在观察器的作用下，如果有数据的更新时就会先调用 <code>beforeUpdate</code> 钩子。</p>
+<ul>
+<li>callHook(vm, ‘updated’)</li>
+</ul>
+<p>当数据更新并且完成视图渲染后调用 <code>updated</code> 钩子。这个钩子和上面的钩子会一直在生命周期运转期里不断被触发。</p>
+<ul>
+<li>callHook(vm, ‘activated’) 和 callHook(vm, ‘deactivated’)</li>
+</ul>
+<p><code>activated</code> 和 <code>deactivated</code> 这两个特殊钩子是在使用 <code>keep-alive</code> 组件的时候才有效。分别在组件被激活或切换到其他组件的时候被调用。 使用 <code>keep-alive</code> 模式在切换到不同组件视图的过程中不会进行重新加载，这就意味着其他的钩子函数都不会被调用，如果在离开页面和进入页面的时候执行某些操作，这两个钩子就非常有用。</p>
+<ul>
+<li>callHook(vm, ‘beforeDestroy’) 和 callHook(vm, ‘destroyed’)</li>
+</ul>
+<p><code>beforeDestroy</code> 和 <code>destroyed</code> 钩子与上面的两个钩子相对应，是在普通模式下会有效的钩子。实例的生命周期的最后阶段就是执行销毁，在销毁之前调用 <code>beforeDestroy</code>。然后清除了所有的数据引用、观察器和事件监听器。最后调用 <code>destroyed</code> 宣告生命周期的完全终止。</p>
+<hr>
+<p>之前看过很多次Vue的生命周期图，但在学习源码之前并没有特别深的感触，现在随着探索源码的深入，终于感觉到在慢慢了解这个过程的意义。整个生命周期的构建过程并不是最难的实现部分，但它是整个架构的背后支撑力量，有了生命周期的正常运转，才能一步步地实现接下来要学习的各种功能。</p>
+
+  </div>
+  
+  <section id="comments" class="comments">
+    <div class="valine-comment"></div>
+<!--载入js，在</body>之前插入即可-->
+<!--Leancloud 操作库:-->
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<!--Valine 的核心代码库-->
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<script>
+new Valine({
+    el: '.valine-comment',
+    app_id: 'DKiK5z8iNqcTBYteGEiuxyaP-gzGzoHsz',
+    app_key: '0SPtM0nGzQdGBXxpwbOSLTXV',
+    placeholder: '有什么话想告诉我？',
+    visitor: 'true',
+  })
+</script>
+  </section>
+  
+</article>
+    </main>
+    <footer id="footer">
+  Copyright &copy; 2025 Shio  
+  <a class="social-links" href="https://github.com/ushio-s"
+    ><i class="blogfont">&#xe6b7; </i></a
+  >
+  
+  <a class="social-links" href="mailto:jylzs369@163.com"
+    ><i class="blogfont">&#xe61a; </i></a
+  >
+  
+  <a class="social-links" href="https://www.jianshu.com/u/70c1c469e3b6"
+    ><i class="blogfont">&#xe6d7; </i></a
+  >
+  
+  <a class="social-links" href="https://www.zhihu.com/people/jylzs369"
+    ><i class="blogfont">&#xe606; </i></a
+  >
+  
+  <a class="social-links" href="/atom.xml"
+    ><i class="blogfont">&#xe640; </i></a
+  >
+    <a href="https://beian.miit.gov.cn/" title="粤ICP备20052180号" target="_blank" rel="noopener">粤ICP备20052180号</a>
+</footer>
+
+    <!-- scripts -->
+
+<script src="/scripts/main.js"></script>
+
+  </body>
+</html>

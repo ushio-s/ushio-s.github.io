@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html  lang=zh-CN>
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  
+    
+    <link rel="shortcut icon" href="/images/favicon.ico ">
+    
+    
+    <link rel="icon" type="image/png" href="/images/favicon-android.png " sizes="192x192">
+    
+    
+    <link rel="apple-touch-icon" href="/images/favicon-apple.png " sizes="180x180">
+    
+  
+  <!-- title -->
+  <title>Shio&#39;s Psycology Life Vue源码探究-虚拟节点的实现 </title>
+  <!-- styles -->
+  <!-- styles -->
+
+<link rel="stylesheet" href="/styles/global.css">
+
+  <!-- rss -->
+  
+  <link rel="alternate" href="/atom.xml" title="Shio&#39;s Psycology Life" type="application/atom+xml" />
+  
+<meta name="generator" content="Hexo 4.2.1"></head>
+  <body>
+    <header id="header">
+  
+  <nav class="menu menu--right">
+  
+    <a class="menu__item" href="/">主页</a>
+    <a class="menu__item" href="/archives/">归档</a>
+    <a class="menu__item" href="/categories/">专题</a>
+    <a class="menu__item" href="/tags/">标签</a>
+    <!-- <a class="menu__item" href="/">作品</a> -->
+    <!-- <a class="menu__item" href="/about/">关于</a> -->
+  </nav>
+</header>
+    <main>
+      <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post__header">
+  <h1 class="post__title">Vue源码探究-虚拟节点的实现</h1>
+  
+  
+  <div class="post__meta">
+    
+<time class="post__date" datetime="2018-08-16T08:53:22.000Z" itemprop="datePublished">
+  
+  <i class="blogfont">&#xedff;</i>
+  
+  2018-08-16 16:53:22
+</time>
+
+    
+<div class="post__category">
+  <i class="blogfont">&#xe62d;</i>
+  <a class="category-link" href="/categories/Dev/">Dev</a>, <a class="category-link" href="/categories/Dev/Explore-Vue/">Explore Vue</a>
+</div>
+  
+
+    
+<div class="post__tag">
+  <i class="blogfont">&#xe7ec;</i>
+  <a class="tag-link" href="/tags/Vue/" rel="tag">Vue</a>
+</div>
+
+
+    <div id="/2018-08-16/vue-implement-of-vnode/" class="leancloud_visitors post__stat" data-flag-title="Vue源码探究-虚拟节点的实现">
+  <i class="blogfont">&#xe672;</i>
+  <span class="leancloud-visitors-count">loading...</span>
+</div>
+  </div>
+</header>
+  <aside class="post__aside">
+  <div class="post__actions">
+    <a id="backTop" class="post__top" href="javascript:">
+      <i class="blogfont">&#xe6b1;</i><!-- 回到顶部 -->
+    </a>
+    <!-- <a id="share" class="post__share" href="javascript:">
+      <i class="blogfont">&#xe6c1;</i>
+    </a> -->
+  </div>
+  <ol class="post__toc"><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#VNode-类"><span class="post__toc-text">VNode 类</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#渲染路径"><span class="post__toc-text">渲染路径</span></a><ol class="post__toc-child"><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#组件实例初始创建生成DOM"><span class="post__toc-text">组件实例初始创建生成DOM</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#组件数据更新刷新DOM"><span class="post__toc-text">组件数据更新刷新DOM</span></a></li></ol></li></ol>
+</aside>
+  <div class="post__content" itemprop="articleBody">
+    <p>页面初始化的所有状态都准备就绪之后，下一步就是要生成组件相应的虚拟节点—— <code>VNode</code>。初次进行组件初始化的时候，<code>VNode</code> 也会执行一次初始化并存储这时创建好的虚拟节点对象。在随后的生命周期中，组件内的数据发生变动时，会先生成新的 <code>VNode</code> 对象，然后再根据与之前存储的旧虚拟节点的对比来执行刷新页面 <code>DOM</code> 的操作。页面刷新的流程大致上可以这样简单的总结，但是其实现路程是非常复杂的，为了深入地了解虚拟节点生成和更新的过程，首先来看看 <code>VNode</code> 类的具体实现。</p>
+<h2 id="VNode-类"><a href="#VNode-类" class="headerlink" title="VNode 类"></a>VNode 类</h2><p><code>VNode</code> 类的实现是支持页面渲染的基础，这个类的实现并不复杂，但无论是创建Vue组件实例还是使用动态JS扩展函数组件都运用到了渲染函数 <code>render</code>，它充分利用了 <code>VNode</code> 来构建虚拟DOM树。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义并导出VNode类</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="class"><span class="keyword">class</span> <span class="title">VNode</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 定义实例属性</span></span><br><span class="line">  tag: string | <span class="keyword">void</span>; <span class="comment">// 标签名称</span></span><br><span class="line">  data: VNodeData | <span class="keyword">void</span>; <span class="comment">// 节点数据</span></span><br><span class="line">  children: ?<span class="built_in">Array</span>&lt;VNode&gt;; <span class="comment">// 子虚拟节点列表</span></span><br><span class="line">  text: string | <span class="keyword">void</span>; <span class="comment">// 节点文字</span></span><br><span class="line">  elm: Node | <span class="keyword">void</span>; <span class="comment">// 对应DOM节点</span></span><br><span class="line">  ns: string | <span class="keyword">void</span>; <span class="comment">// 节点命名空间，针对svg标签的属性</span></span><br><span class="line">  context: Component | <span class="keyword">void</span>; <span class="comment">// rendered in this component's scope // 组件上下文</span></span><br><span class="line">  key: string | number | <span class="keyword">void</span>;  <span class="comment">// 节点唯一键</span></span><br><span class="line">  componentOptions: VNodeComponentOptions | <span class="keyword">void</span>; <span class="comment">// 虚拟节点组件配置对象</span></span><br><span class="line">  componentInstance: Component | <span class="keyword">void</span>; <span class="comment">// component instance // 组件实例</span></span><br><span class="line">  parent: VNode | <span class="keyword">void</span>; <span class="comment">// component placeholder node // 组件占位符节点</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 严格内部属性，有些属性是服务器渲染的情况使用的，暂时还不了解</span></span><br><span class="line">  <span class="comment">// strictly internal</span></span><br><span class="line">  <span class="comment">// 是否包含原始HTML。只有服务器端会使用</span></span><br><span class="line">  raw: boolean; <span class="comment">// contains raw HTML? (server only)</span></span><br><span class="line">  <span class="comment">// 是否静态节点，静态节点将会被提升</span></span><br><span class="line">  isStatic: boolean; <span class="comment">// hoisted static node</span></span><br><span class="line">  <span class="comment">// 是否在根节点插入，进入转换检查所必需的</span></span><br><span class="line">  isRootInsert: boolean; <span class="comment">// necessary for enter transition check</span></span><br><span class="line">  <span class="comment">// 是否空注释占位符</span></span><br><span class="line">  isComment: boolean; <span class="comment">// empty comment placeholder?</span></span><br><span class="line">  <span class="comment">// 是否拷贝节点</span></span><br><span class="line">  isCloned: boolean; <span class="comment">// is a cloned node?</span></span><br><span class="line">  <span class="comment">// 是否一次性节点</span></span><br><span class="line">  isOnce: boolean; <span class="comment">// is a v-once node?</span></span><br><span class="line">  <span class="comment">// 异步组件工厂方法</span></span><br><span class="line">  asyncFactory: <span class="built_in">Function</span> | <span class="keyword">void</span>; <span class="comment">// async component factory function</span></span><br><span class="line">  <span class="comment">// 异步源</span></span><br><span class="line">  asyncMeta: <span class="built_in">Object</span> | <span class="keyword">void</span>;</span><br><span class="line">  <span class="comment">// 是否异步占位符</span></span><br><span class="line">  isAsyncPlaceholder: boolean;</span><br><span class="line">  <span class="comment">// 服务器端上下文</span></span><br><span class="line">  ssrContext: <span class="built_in">Object</span> | <span class="keyword">void</span>;</span><br><span class="line">  <span class="comment">// 功能节点的实际实例上下文</span></span><br><span class="line">  fnContext: Component | <span class="keyword">void</span>; <span class="comment">// real context vm for functional nodes</span></span><br><span class="line">  <span class="comment">// 方法配置选项，只在服务器渲染使用</span></span><br><span class="line">  fnOptions: ?ComponentOptions; <span class="comment">// for SSR caching</span></span><br><span class="line">  <span class="comment">// 方法作用域id</span></span><br><span class="line">  fnScopeId: ?string; <span class="comment">// functional scope id support</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 构造函数，参数均可选，与上面定义对应</span></span><br><span class="line">  <span class="keyword">constructor</span> (</span><br><span class="line">    tag?: string,</span><br><span class="line">    data?: VNodeData,</span><br><span class="line">    children?: ?Array&lt;VNode&gt;,</span><br><span class="line">    text?: string,</span><br><span class="line">    elm?: Node,</span><br><span class="line">    context?: Component,</span><br><span class="line">    componentOptions?: VNodeComponentOptions,</span><br><span class="line">    asyncFactory?: Function</span><br><span class="line">  ) &#123;</span><br><span class="line">    <span class="comment">// 实例初始化赋值</span></span><br><span class="line">    <span class="keyword">this</span>.tag = tag</span><br><span class="line">    <span class="keyword">this</span>.data = data</span><br><span class="line">    <span class="keyword">this</span>.children = children</span><br><span class="line">    <span class="keyword">this</span>.text = text</span><br><span class="line">    <span class="keyword">this</span>.elm = elm</span><br><span class="line">    <span class="keyword">this</span>.ns = <span class="literal">undefined</span></span><br><span class="line">    <span class="keyword">this</span>.context = context</span><br><span class="line">    <span class="keyword">this</span>.fnContext = <span class="literal">undefined</span></span><br><span class="line">    <span class="keyword">this</span>.fnOptions = <span class="literal">undefined</span></span><br><span class="line">    <span class="keyword">this</span>.fnScopeId = <span class="literal">undefined</span></span><br><span class="line">    <span class="keyword">this</span>.key = data &amp;&amp; data.key</span><br><span class="line">    <span class="keyword">this</span>.componentOptions = componentOptions</span><br><span class="line">    <span class="keyword">this</span>.componentInstance = <span class="literal">undefined</span></span><br><span class="line">    <span class="keyword">this</span>.parent = <span class="literal">undefined</span></span><br><span class="line">    <span class="keyword">this</span>.raw = <span class="literal">false</span></span><br><span class="line">    <span class="keyword">this</span>.isStatic = <span class="literal">false</span></span><br><span class="line">    <span class="keyword">this</span>.isRootInsert = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">this</span>.isComment = <span class="literal">false</span></span><br><span class="line">    <span class="keyword">this</span>.isCloned = <span class="literal">false</span></span><br><span class="line">    <span class="keyword">this</span>.isOnce = <span class="literal">false</span></span><br><span class="line">    <span class="keyword">this</span>.asyncFactory = asyncFactory</span><br><span class="line">    <span class="keyword">this</span>.asyncMeta = <span class="literal">undefined</span></span><br><span class="line">    <span class="keyword">this</span>.isAsyncPlaceholder = <span class="literal">false</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 定义child属性的取值器</span></span><br><span class="line">  <span class="comment">// 已弃用：用于向后compat的componentInstance的别名</span></span><br><span class="line">  <span class="comment">// DEPRECATED: alias for componentInstance for backwards compat.</span></span><br><span class="line">  <span class="comment">/* istanbul ignore next */</span></span><br><span class="line">  <span class="keyword">get</span> child (): Component | void &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.componentInstance</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义并导出createEmptyVNode函数，创建空虚拟节点</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> createEmptyVNode = <span class="function">(<span class="params">text: string = <span class="string">''</span></span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 实例化虚拟节点</span></span><br><span class="line">  <span class="keyword">const</span> node = <span class="keyword">new</span> VNode()</span><br><span class="line">  <span class="comment">// 设置节点文字为空，并设置为注释节点</span></span><br><span class="line">  node.text = text</span><br><span class="line">  node.isComment = <span class="literal">true</span></span><br><span class="line">  <span class="comment">// 返回节点</span></span><br><span class="line">  <span class="keyword">return</span> node</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义并导出createTextVNode函数，创建文字虚拟节点</span></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">createTextVNode</span> (<span class="params">val: string | number</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 置空实例初始化的标签名，数据，子节点属性，只传入文字</span></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> VNode(<span class="literal">undefined</span>, <span class="literal">undefined</span>, <span class="literal">undefined</span>, <span class="built_in">String</span>(val))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 优化浅拷贝</span></span><br><span class="line"><span class="comment">// 用于静态节点和插槽节点，因为它们可以在多个渲染中重用，</span></span><br><span class="line"><span class="comment">// 当DOM操作依赖于它们的elm引用时，克隆它们可以避免错误</span></span><br><span class="line"><span class="comment">// optimized shallow clone</span></span><br><span class="line"><span class="comment">// used for static nodes and slot nodes because they may be reused across</span></span><br><span class="line"><span class="comment">// multiple renders, cloning them avoids errors when DOM manipulations rely</span></span><br><span class="line"><span class="comment">// on their elm reference.</span></span><br><span class="line"><span class="comment">// 定义并导出cloneVNode函数，拷贝节点</span></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">cloneVNode</span> (<span class="params">vnode: VNode</span>): <span class="title">VNode</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 拷贝节点并返回</span></span><br><span class="line">  <span class="keyword">const</span> cloned = <span class="keyword">new</span> VNode(</span><br><span class="line">    vnode.tag,</span><br><span class="line">    vnode.data,</span><br><span class="line">    vnode.children,</span><br><span class="line">    vnode.text,</span><br><span class="line">    vnode.elm,</span><br><span class="line">    vnode.context,</span><br><span class="line">    vnode.componentOptions,</span><br><span class="line">    vnode.asyncFactory</span><br><span class="line">  )</span><br><span class="line">  cloned.ns = vnode.ns</span><br><span class="line">  cloned.isStatic = vnode.isStatic</span><br><span class="line">  cloned.key = vnode.key</span><br><span class="line">  cloned.isComment = vnode.isComment</span><br><span class="line">  cloned.fnContext = vnode.fnContext</span><br><span class="line">  cloned.fnOptions = vnode.fnOptions</span><br><span class="line">  cloned.fnScopeId = vnode.fnScopeId</span><br><span class="line">  cloned.asyncMeta = vnode.asyncMeta</span><br><span class="line">  cloned.isCloned = <span class="literal">true</span></span><br><span class="line">  <span class="keyword">return</span> cloned</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>VNode</code> 类实现的源代码分两部分，第一部分是定义 <code>VNode</code> 类自身的实现，第二部分是定一些常用的节点创建方法，包括创建空的虚拟节点，文字虚拟节点和新拷贝节点。虚拟节点本身是一个包含了所有渲染所需信息的载体，从前面一部分的属性就可以看出，不仅有相应的 <code>DOM</code> 标签和属性信息，还包含了子虚拟节点列表，所以一个组件初始化之后得到的 <code>VNode</code> 也是一棵虚拟节点树，实质是抽象和信息化了的对应于 <code>DOM</code> 树的 <code>JS</code> 对象。</p>
+<p><code>VNode</code> 的使用在服务器渲染中也有应用，关于这一部分暂时放到之后去研究。</p>
+<p>认识到 <code>VNode</code> 的实质之后，对于它的基础性的作用还是不太清楚，为什么需要创建这种对象来呢？答案就在Vue的响应式刷新里。如前所述，观察系统实现了对数据变更的监视，在收到变更的通知之后处理权就移交到渲染系统手上，渲染系统首先进行的处理就是根据变动生成新虚拟节点树，然后再去对比旧的虚拟节点树，来实现这个抽象对象的更新，简单的来说就是通过新旧两个节点树的对照，来最终确定一个真实DOM建立起来所需要依赖的抽象对象，只要这个真实 <code>DOM</code> 所依赖的对象确定好，渲染函数会把它转化成真实的 <code>DOM</code> 树。</p>
+<p>最后来概括地描述一下 <code>VNode</code> 渲染成真实 <code>DOM</code> 的路径：</p>
+<h2 id="渲染路径"><a href="#渲染路径" class="headerlink" title="渲染路径"></a>渲染路径</h2><p><code>Vue</code> 的一般渲染有两条路径：</p>
+<ul>
+<li>组件实例初始创建生成DOM</li>
+<li>组件数据更新刷新DOM</li>
+</ul>
+<p>在研究生命周期的时候知道，有 <code>mount</code> 和 <code>update</code> 两个钩子函数，这两个生命周期的过程分别代表了两条渲染路径的执行。</p>
+<h3 id="组件实例初始创建生成DOM"><a href="#组件实例初始创建生成DOM" class="headerlink" title="组件实例初始创建生成DOM"></a>组件实例初始创建生成DOM</h3><p><code>Vue</code> 组件实例初始创建时，走的是 <code>mount</code> 这条路径，在这条路径上初始没有已暂存的旧虚拟节点，要经历第一轮 <code>VNode</code> 的生成。这一段代码的执行是从 <code>$mount</code> 函数开始的：</p>
+<blockquote>
+<p><strong><code>$mount =&gt; mountComponent =&gt; updateComponent =&gt; _render =&gt; _update =&gt; createPatchFunction(patch) =&gt; createElm =&gt; insert =&gt; removeVnodes</code></strong></p>
+</blockquote>
+<p>大致描述一下每一个流程中所进行的关于节点的处理：</p>
+<ul>
+<li><code>mountComponent</code> 接收了挂载的真实DOM节点，然后赋值给 <code>vm.$el</code></li>
+<li><code>updateComponent</code> 调用 <code>_update</code>，并传入 <code>_render</code> 生成的新节点</li>
+<li><code>_render</code> 生成新虚拟节点树，它内部是调用实例的 <code>createElement</code> 方法创建虚拟节点</li>
+<li><code>_update</code> 方法接收到新的虚拟节点后，会根据是否已有存储的旧虚拟节点来分离执行路径，就这一个路径来说，初始储存的 <code>VNode</code> 是不存在的，接下来执行 <code>patch</code> 操作会传入挂载的真实DOM节点和新生成的虚拟节点。</li>
+<li><code>createPatchFunction</code> 即是 <code>patch</code> 方法调用的实际函数，执行时会将传入的真实DOM节点转换成虚拟节点，然后执行 <code>createElm</code></li>
+<li><code>createElm</code> 会根据新的虚拟节点生成真实DOM节点，内部同样调用 <code>createElement</code> 方法来创建节点。</li>
+<li><code>insert</code> 方法将生成的真实DOM插入到DOM树中</li>
+<li><code>removeVnodes</code> 最后将之前转换的真实DOM节点从DOM树中移除</li>
+</ul>
+<p>以上就是一般初始化Vue实例组件时渲染的路径，在这个过程中，初始 <code>VNode</code> 虽然不存在，但是由于挂在的真实 <code>DOM</code> 节点一定存在，所以代码会按照这样的流程来执行。</p>
+<h3 id="组件数据更新刷新DOM"><a href="#组件数据更新刷新DOM" class="headerlink" title="组件数据更新刷新DOM"></a>组件数据更新刷新DOM</h3><p>一般情况下，数据变成会通知 <code>Watcher</code> 实例调用 <code>update</code> 方法，这个方法在一般情况下会把待渲染的数据观察对象加入到事件任务队列中，避免开销过高在一次处理中集中执行。所以在 <code>mount</code> 路径已经完成了之后，生命周期运行期间都是走的 <code>update</code> 路径，在每一次的事件处理中 <code>nextTick</code> 会调用 <code>flushSchedulerQueue</code> 来开始一轮页面刷新：</p>
+<blockquote>
+<p><strong><code>flushSchedulerQueue =&gt; watcher.run =&gt; watcher.getAndInvoke =&gt; watcher.get  =&gt; updateComponent =&gt; _render =&gt; _update =&gt; createPatchFunction(patch) =&gt; patchVnode =&gt; updateChildren</code></strong></p>
+</blockquote>
+<p>在这个流程中各个方法的大致处理如下：</p>
+<ul>
+<li><code>flushSchedulerQueue</code> 调用每一个变更了的数据的监视器的 <code>run</code> 方法</li>
+<li><code>run</code> 执行调用实例的 <code>getAndInvoke</code> 方法，目的是获取新数据并调用监视器的回调函数</li>
+<li><code>getAndInvoke</code> 执行的第一步是要获取变更后的新数据，在这时会调用取值器函数</li>
+<li><code>get</code> 执行的取值器函数getter被设定为 <code>updateComponent</code>，所以会执行继续执行它</li>
+<li><code>updateComponent</code> =&gt; <code>createPatchFunction</code> 之间的流程与另一条路径相同，只是其中基于新旧虚拟节点的判断不一样，如果存在旧虚拟节点就执行 <code>patchVnode</code> 操作。</li>
+<li><code>patchVnode</code> 方法是实际更新节点的实现，在这个函数的执行中，会得到最终的真实DOM</li>
+</ul>
+<p>生命周期中的渲染主要是以上两条路径，调用的入口不同，但中间有一部分逻辑是公用的，再根据判断来选择分离的路程来更新 <code>VNode</code> 和刷新节点。在这个过程可以看出 <code>VNode</code> 的重要作用。</p>
+<p>虽然路径大致可以这样总结，但其中的实现比较复杂。不仅在流程判断上非常有跳跃性，实现更新真实节点树的操作也都是复杂递归的调用。</p>
+<hr>
+<p>总的来说虚拟节点的实现是非常平易近人，但是在节点渲染的过程中却被运用的十分复杂，段位不够高看了很多遍测试了很多遍才弄清楚整个执行流，这之外还有关于服务器端渲染和持久活跃组件的部分暂时都忽略了。不过关于节点渲染这一部分的实现逻辑非常值得去好好研究。</p>
+
+  </div>
+  
+  <section id="comments" class="comments">
+    <div class="valine-comment"></div>
+<!--载入js，在</body>之前插入即可-->
+<!--Leancloud 操作库:-->
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<!--Valine 的核心代码库-->
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<script>
+new Valine({
+    el: '.valine-comment',
+    app_id: 'DKiK5z8iNqcTBYteGEiuxyaP-gzGzoHsz',
+    app_key: '0SPtM0nGzQdGBXxpwbOSLTXV',
+    placeholder: '有什么话想告诉我？',
+    visitor: 'true',
+  })
+</script>
+  </section>
+  
+</article>
+    </main>
+    <footer id="footer">
+  Copyright &copy; 2025 Shio  
+  <a class="social-links" href="https://github.com/ushio-s"
+    ><i class="blogfont">&#xe6b7; </i></a
+  >
+  
+  <a class="social-links" href="mailto:jylzs369@163.com"
+    ><i class="blogfont">&#xe61a; </i></a
+  >
+  
+  <a class="social-links" href="https://www.jianshu.com/u/70c1c469e3b6"
+    ><i class="blogfont">&#xe6d7; </i></a
+  >
+  
+  <a class="social-links" href="https://www.zhihu.com/people/jylzs369"
+    ><i class="blogfont">&#xe606; </i></a
+  >
+  
+  <a class="social-links" href="/atom.xml"
+    ><i class="blogfont">&#xe640; </i></a
+  >
+    <a href="https://beian.miit.gov.cn/" title="粤ICP备20052180号" target="_blank" rel="noopener">粤ICP备20052180号</a>
+</footer>
+
+    <!-- scripts -->
+
+<script src="/scripts/main.js"></script>
+
+  </body>
+</html>

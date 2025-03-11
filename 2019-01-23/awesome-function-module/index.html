@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html  lang=zh-CN>
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  
+    
+    <link rel="shortcut icon" href="/images/favicon.ico ">
+    
+    
+    <link rel="icon" type="image/png" href="/images/favicon-android.png " sizes="192x192">
+    
+    
+    <link rel="apple-touch-icon" href="/images/favicon-apple.png " sizes="180x180">
+    
+  
+  <!-- title -->
+  <title>Shio&#39;s Psycology Life 绝妙的函数：模块模式 </title>
+  <!-- styles -->
+  <!-- styles -->
+
+<link rel="stylesheet" href="/styles/global.css">
+
+  <!-- rss -->
+  
+  <link rel="alternate" href="/atom.xml" title="Shio&#39;s Psycology Life" type="application/atom+xml" />
+  
+<meta name="generator" content="Hexo 4.2.1"></head>
+  <body>
+    <header id="header">
+  
+  <nav class="menu menu--right">
+  
+    <a class="menu__item" href="/">主页</a>
+    <a class="menu__item" href="/archives/">归档</a>
+    <a class="menu__item" href="/categories/">专题</a>
+    <a class="menu__item" href="/tags/">标签</a>
+    <!-- <a class="menu__item" href="/">作品</a> -->
+    <!-- <a class="menu__item" href="/about/">关于</a> -->
+  </nav>
+</header>
+    <main>
+      <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post__header">
+  <h1 class="post__title">绝妙的函数：模块模式</h1>
+  
+  
+  <div class="post__meta">
+    
+<time class="post__date" datetime="2019-01-23T02:30:47.000Z" itemprop="datePublished">
+  
+  <i class="blogfont">&#xedff;</i>
+  
+  2019-01-23 10:30:47
+</time>
+
+    
+<div class="post__category">
+  <i class="blogfont">&#xe62d;</i>
+  <a class="category-link" href="/categories/Dev/">Dev</a>
+</div>
+  
+
+    
+<div class="post__tag">
+  <i class="blogfont">&#xe7ec;</i>
+  <a class="tag-link" href="/tags/Javascript/" rel="tag">Javascript</a>
+</div>
+
+
+    <div id="/2019-01-23/awesome-function-module/" class="leancloud_visitors post__stat" data-flag-title="绝妙的函数：模块模式">
+  <i class="blogfont">&#xe672;</i>
+  <span class="leancloud-visitors-count">loading...</span>
+</div>
+  </div>
+</header>
+  <aside class="post__aside">
+  <div class="post__actions">
+    <a id="backTop" class="post__top" href="javascript:">
+      <i class="blogfont">&#xe6b1;</i><!-- 回到顶部 -->
+    </a>
+    <!-- <a id="share" class="post__share" href="javascript:">
+      <i class="blogfont">&#xe6c1;</i>
+    </a> -->
+  </div>
+  <ol class="post__toc"><li class="post__toc-item post__toc-level-1"><a class="post__toc-link" href="#Awesome-Function-module-pattern"><span class="post__toc-text">Awesome Function: module pattern</span></a><ol class="post__toc-child"><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#实现最简单的模块"><span class="post__toc-text">实现最简单的模块</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#实现单例模式的模块"><span class="post__toc-text">实现单例模式的模块</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#实现保存对模块的内部引用"><span class="post__toc-text">实现保存对模块的内部引用</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#实现一个模块管理器"><span class="post__toc-text">实现一个模块管理器</span></a></li></ol></li></ol>
+</aside>
+  <div class="post__content" itemprop="articleBody">
+    <h1 id="Awesome-Function-module-pattern"><a href="#Awesome-Function-module-pattern" class="headerlink" title="Awesome Function: module pattern"></a>Awesome Function: module pattern</h1><p><a href="https://awesome-function.herokuapp.com/#module" target="_blank" rel="noopener">在线演示</a></p>
+<p>利用函数的闭包不仅可以非常轻松地实现模块模式，并且可以自己创建一个模块管理器，就这么简单！</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 以下模块的触发方法</span></span><br><span class="line">moduleX.sayHello()</span><br></pre></td></tr></table></figure>
+
+<h2 id="实现最简单的模块"><a href="#实现最简单的模块" class="headerlink" title="实现最简单的模块"></a>实现最简单的模块</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 实现最简单的模块</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">simpleModule</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> sayHello = <span class="function"><span class="keyword">function</span> <span class="title">sayHello</span> (<span class="params">name</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">`Hi, <span class="subst">$&#123;name&#125;</span>`</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        sayHello: sayHello</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> module1 = simpleModule()</span><br></pre></td></tr></table></figure>
+
+<h2 id="实现单例模式的模块"><a href="#实现单例模式的模块" class="headerlink" title="实现单例模式的模块"></a>实现单例模式的模块</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 实现单例模式的模块</span></span><br><span class="line"><span class="keyword">var</span> module2 = (<span class="function"><span class="keyword">function</span> <span class="title">singleModule</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> hello = <span class="string">'Hi, Module 2'</span></span><br><span class="line">    <span class="keyword">let</span> sayHello = <span class="function"><span class="keyword">function</span> <span class="title">sayHello</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> hello</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        sayHello: sayHello</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+
+<h2 id="实现保存对模块的内部引用"><a href="#实现保存对模块的内部引用" class="headerlink" title="实现保存对模块的内部引用"></a>实现保存对模块的内部引用</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 实现保存对模块的内部引用实现保存对模块的内部引用</span></span><br><span class="line"><span class="keyword">var</span> module3 = (<span class="function"><span class="keyword">function</span> <span class="title">storeModule</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> store = &#123;&#125;</span><br><span class="line">    <span class="keyword">let</span> hello = <span class="string">'Hi, Module 3'</span></span><br><span class="line">    <span class="keyword">let</span> sayHello = <span class="function"><span class="keyword">function</span> <span class="title">sayHello</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> store.getHello()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> getHello = <span class="function"><span class="keyword">function</span> <span class="title">getHello</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> hello</span><br><span class="line">    &#125;</span><br><span class="line">    store = &#123;</span><br><span class="line">        sayHello: sayHello,</span><br><span class="line">        getHello: getHello</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> store</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+
+<h2 id="实现一个模块管理器"><a href="#实现一个模块管理器" class="headerlink" title="实现一个模块管理器"></a>实现一个模块管理器</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 实现一个模块管理器</span></span><br><span class="line"><span class="keyword">var</span> ModuleManager = (<span class="function"><span class="keyword">function</span> <span class="title">moduleManager</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> modules = &#123;&#125;</span><br><span class="line">    <span class="keyword">let</span> register = <span class="function"><span class="keyword">function</span> <span class="title">register</span> (<span class="params">name, deps, impl</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; deps.length; i++) &#123;</span><br><span class="line">            deps[i] = modules[deps[i]]</span><br><span class="line">        &#125;</span><br><span class="line">        modules[name] = impl.apply(impl, deps)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">get</span> = function <span class="keyword">get</span> (name) &#123;</span><br><span class="line">        <span class="keyword">return</span> modules[name]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        register: register,</span><br><span class="line">        <span class="keyword">get</span>: <span class="keyword">get</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;)()</span><br><span class="line"></span><br><span class="line">// 注册不带依赖的模块</span><br><span class="line">ModuleManager.register('module4', [], function () &#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">sayHello</span> (<span class="params">name</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">`Hello, <span class="subst">$&#123;name || <span class="string">'module4'</span>&#125;</span>`</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        sayHello: sayHello</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 注册带依赖的模块</span></span><br><span class="line">ModuleManager.register(<span class="string">'module5'</span>, [<span class="string">'module4'</span>], <span class="function"><span class="keyword">function</span> (<span class="params">module4</span>) </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">sayHello</span> (<span class="params">name</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">`<span class="subst">$&#123;module4.sayHello()&#125;</span>, this is Module 5`</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        sayHello: sayHello</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取模块等待调用</span></span><br><span class="line">module4 = ModuleManager.get(<span class="string">'module4'</span>)</span><br><span class="line">module5 = ModuleManager.get(<span class="string">'module5'</span>)</span><br></pre></td></tr></table></figure>
+  </div>
+  
+  <section id="comments" class="comments">
+    <div class="valine-comment"></div>
+<!--载入js，在</body>之前插入即可-->
+<!--Leancloud 操作库:-->
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<!--Valine 的核心代码库-->
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<script>
+new Valine({
+    el: '.valine-comment',
+    app_id: 'DKiK5z8iNqcTBYteGEiuxyaP-gzGzoHsz',
+    app_key: '0SPtM0nGzQdGBXxpwbOSLTXV',
+    placeholder: '有什么话想告诉我？',
+    visitor: 'true',
+  })
+</script>
+  </section>
+  
+</article>
+    </main>
+    <footer id="footer">
+  Copyright &copy; 2025 Shio  
+  <a class="social-links" href="https://github.com/ushio-s"
+    ><i class="blogfont">&#xe6b7; </i></a
+  >
+  
+  <a class="social-links" href="mailto:jylzs369@163.com"
+    ><i class="blogfont">&#xe61a; </i></a
+  >
+  
+  <a class="social-links" href="https://www.jianshu.com/u/70c1c469e3b6"
+    ><i class="blogfont">&#xe6d7; </i></a
+  >
+  
+  <a class="social-links" href="https://www.zhihu.com/people/jylzs369"
+    ><i class="blogfont">&#xe606; </i></a
+  >
+  
+  <a class="social-links" href="/atom.xml"
+    ><i class="blogfont">&#xe640; </i></a
+  >
+    <a href="https://beian.miit.gov.cn/" title="粤ICP备20052180号" target="_blank" rel="noopener">粤ICP备20052180号</a>
+</footer>
+
+    <!-- scripts -->
+
+<script src="/scripts/main.js"></script>
+
+  </body>
+</html>

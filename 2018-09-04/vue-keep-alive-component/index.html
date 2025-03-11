@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html  lang=zh-CN>
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  
+    
+    <link rel="shortcut icon" href="/images/favicon.ico ">
+    
+    
+    <link rel="icon" type="image/png" href="/images/favicon-android.png " sizes="192x192">
+    
+    
+    <link rel="apple-touch-icon" href="/images/favicon-apple.png " sizes="180x180">
+    
+  
+  <!-- title -->
+  <title>Shio&#39;s Psycology Life Vue源码探究-组件的持久活跃 </title>
+  <!-- styles -->
+  <!-- styles -->
+
+<link rel="stylesheet" href="/styles/global.css">
+
+  <!-- rss -->
+  
+  <link rel="alternate" href="/atom.xml" title="Shio&#39;s Psycology Life" type="application/atom+xml" />
+  
+<meta name="generator" content="Hexo 4.2.1"></head>
+  <body>
+    <header id="header">
+  
+  <nav class="menu menu--right">
+  
+    <a class="menu__item" href="/">主页</a>
+    <a class="menu__item" href="/archives/">归档</a>
+    <a class="menu__item" href="/categories/">专题</a>
+    <a class="menu__item" href="/tags/">标签</a>
+    <!-- <a class="menu__item" href="/">作品</a> -->
+    <!-- <a class="menu__item" href="/about/">关于</a> -->
+  </nav>
+</header>
+    <main>
+      <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post__header">
+  <h1 class="post__title">Vue源码探究-组件的持久活跃</h1>
+  
+  
+  <div class="post__meta">
+    
+<time class="post__date" datetime="2018-09-04T08:32:26.000Z" itemprop="datePublished">
+  
+  <i class="blogfont">&#xedff;</i>
+  
+  2018-09-04 16:32:26
+</time>
+
+    
+<div class="post__category">
+  <i class="blogfont">&#xe62d;</i>
+  <a class="category-link" href="/categories/Dev/">Dev</a>, <a class="category-link" href="/categories/Dev/Explore-Vue/">Explore Vue</a>
+</div>
+  
+
+    
+<div class="post__tag">
+  <i class="blogfont">&#xe7ec;</i>
+  <a class="tag-link" href="/tags/Vue/" rel="tag">Vue</a>
+</div>
+
+
+    <div id="/2018-09-04/vue-keep-alive-component/" class="leancloud_visitors post__stat" data-flag-title="Vue源码探究-组件的持久活跃">
+  <i class="blogfont">&#xe672;</i>
+  <span class="leancloud-visitors-count">loading...</span>
+</div>
+  </div>
+</header>
+  <aside class="post__aside">
+  <div class="post__actions">
+    <a id="backTop" class="post__top" href="javascript:">
+      <i class="blogfont">&#xe6b1;</i><!-- 回到顶部 -->
+    </a>
+    <!-- <a id="share" class="post__share" href="javascript:">
+      <i class="blogfont">&#xe6c1;</i>
+    </a> -->
+  </div>
+  
+</aside>
+  <div class="post__content" itemprop="articleBody">
+    <p>*本篇代码位于<a href="https://github.com/vuejs/vue/blob/v2.5.17-beta.0/src/core/components/keep-alive.js" target="_blank" rel="noopener">vue/src/core/components/keep-alive.js</a></p>
+<p>较新版本的Vue增加了一个内置组件 <code>keep-alive</code>，用于存储组件状态，即便失活也能保持现有状态不变，切换回来的时候不会恢复到初始状态。由此可知，路由切换的钩子所触发的事件处理是无法适用于 <code>keep-alive</code> 组件的，那如果需要根据失活与否来给予组件事件通知，该怎么办呢？如前篇所述，<code>keep-alive</code> 组件有两个特有的生命周期钩子 <code>activated</code> 和 <code>deactivated</code>，用来响应失活状态的事件处理。</p>
+<p>来看看 <code>keep-alive</code> 组件的实现，代码文件位于 <code>components</code> 里，目前入口文件里也只有 <code>keep-alive</code> 这一个内置组件，但这个模块的分离，会不会预示着官方将在未来开发更多具有特殊功能的内置组件呢？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 导入辅助函数</span></span><br><span class="line"><span class="keyword">import</span> &#123; isRegExp, remove &#125; <span class="keyword">from</span> <span class="string">'shared/util'</span></span><br><span class="line"><span class="keyword">import</span> &#123; getFirstComponentChild &#125; <span class="keyword">from</span> <span class="string">'core/vdom/helpers/index'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义VNodeCache静态类型</span></span><br><span class="line"><span class="comment">// 它是一个包含key名和VNode键值对的对象，可想而知它是用来存储组件的</span></span><br><span class="line">type VNodeCache = &#123; [key: string]: ?VNode &#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义getComponentName函数，用于获取组件名称，传入组件配置对象</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getComponentName</span> (<span class="params">opts: ?VNodeComponentOptions</span>): ?<span class="title">string</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 先尝试获取配置对象中定义的name属性，或无则获取标签名称</span></span><br><span class="line">  <span class="keyword">return</span> opts &amp;&amp; (opts.Ctor.options.name || opts.tag)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义matches函数，进行模式匹配，传入匹配的模式类型数据和name属性</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">matches</span> (<span class="params">pattern: string | RegExp | Array&lt;string&gt;, name: string</span>): <span class="title">boolean</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 匹配数组模式</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">Array</span>.isArray(pattern)) &#123;</span><br><span class="line">    <span class="comment">// 使用数组方法查找name，返回结果</span></span><br><span class="line">    <span class="keyword">return</span> pattern.indexOf(name) &gt; <span class="number">-1</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> pattern === <span class="string">'string'</span>) &#123;</span><br><span class="line">    <span class="comment">// 匹配字符串模式</span></span><br><span class="line">    <span class="comment">// 将字符串转换成数组查找name，返回结果</span></span><br><span class="line">    <span class="keyword">return</span> pattern.split(<span class="string">','</span>).indexOf(name) &gt; <span class="number">-1</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (isRegExp(pattern)) &#123;</span><br><span class="line">    <span class="comment">// 匹配正则表达式</span></span><br><span class="line">    <span class="comment">// 使用正则匹配name，返回结果</span></span><br><span class="line">    <span class="keyword">return</span> pattern.test(name)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">/* istanbul ignore next */</span></span><br><span class="line">  <span class="comment">// 未匹配正确模式则返回false</span></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义pruneCache函数，修剪keep-alive组件缓存对象</span></span><br><span class="line"><span class="comment">// 接受keep-alive组件实例和过滤函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">pruneCache</span> (<span class="params">keepAliveInstance: any, filter: Function</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 获取组件的cache，keys，_vnode属性</span></span><br><span class="line">  <span class="keyword">const</span> &#123; cache, keys, _vnode &#125; = keepAliveInstance</span><br><span class="line">  <span class="comment">// 遍历cache对象</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> cache) &#123;</span><br><span class="line">    <span class="comment">// 获取缓存资源</span></span><br><span class="line">    <span class="keyword">const</span> cachedNode: ?VNode = cache[key]</span><br><span class="line">    <span class="comment">// 如果缓存资源存在</span></span><br><span class="line">    <span class="keyword">if</span> (cachedNode) &#123;</span><br><span class="line">      <span class="comment">// 获取该资源的名称</span></span><br><span class="line">      <span class="keyword">const</span> name: ?string = getComponentName(cachedNode.componentOptions)</span><br><span class="line">      <span class="comment">// 当名称存在 且不匹配缓存过滤时</span></span><br><span class="line">      <span class="keyword">if</span> (name &amp;&amp; !filter(name)) &#123;</span><br><span class="line">        <span class="comment">// 执行修剪缓存资源操作</span></span><br><span class="line">        pruneCacheEntry(cache, key, keys, _vnode)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义pruneCacheEntry函数，修剪缓存条目</span></span><br><span class="line"><span class="comment">// 接受keep-alive实例的缓存对象和键名缓存对象，资源键名和当前资源</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">pruneCacheEntry</span> (<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  cache: VNodeCache,</span></span></span><br><span class="line"><span class="function"><span class="params">  key: string,</span></span></span><br><span class="line"><span class="function"><span class="params">  keys: Array&lt;string&gt;,</span></span></span><br><span class="line"><span class="function"><span class="params">  current?: VNode</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 检查缓存对象里是否已经有以key值存储的资源</span></span><br><span class="line">  <span class="keyword">const</span> cached = cache[key]</span><br><span class="line">  <span class="comment">// 如果有旧资源并且没有传入新资源参数或新旧资源标签不同</span></span><br><span class="line">  <span class="keyword">if</span> (cached &amp;&amp; (!current || cached.tag !== current.tag)) &#123;</span><br><span class="line">    <span class="comment">// 销毁该资源</span></span><br><span class="line">    cached.componentInstance.$destroy()</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 置空key键名存储资源</span></span><br><span class="line">  cache[key] = <span class="literal">null</span></span><br><span class="line">  <span class="comment">// 移除key值的存储</span></span><br><span class="line">  remove(keys, key)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义模式匹配接收的数据类型</span></span><br><span class="line"><span class="keyword">const</span> patternTypes: <span class="built_in">Array</span>&lt;<span class="built_in">Function</span>&gt; = [<span class="built_in">String</span>, <span class="built_in">RegExp</span>, <span class="built_in">Array</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment">// 导出keep-alive组件实例的配置对象</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  <span class="comment">// 定义组件名称</span></span><br><span class="line">  name: <span class="string">'keep-alive'</span>,</span><br><span class="line">  <span class="comment">// 设置abstract属性</span></span><br><span class="line">  abstract: <span class="literal">true</span>,</span><br><span class="line">  <span class="comment">// 设置组件接收的属性</span></span><br><span class="line">  props: &#123;</span><br><span class="line">    <span class="comment">// include用于包含模式匹配的资源，启用缓存</span></span><br><span class="line">    include: patternTypes,</span><br><span class="line">    <span class="comment">// exclude用于排除模式匹配的资源，不启用缓存</span></span><br><span class="line">    exclude: patternTypes,</span><br><span class="line">    <span class="comment">// 最大缓存数</span></span><br><span class="line">    max: [<span class="built_in">String</span>, <span class="built_in">Number</span>]</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  created () &#123;</span><br><span class="line">    <span class="comment">// 实例创建时定义cache属性为空对象，用于存储资源</span></span><br><span class="line">    <span class="keyword">this</span>.cache = <span class="built_in">Object</span>.create(<span class="literal">null</span>)</span><br><span class="line">    <span class="comment">// 设置keys数组，用于存储资源的key名</span></span><br><span class="line">    <span class="keyword">this</span>.keys = []</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  destroyed () &#123;</span><br><span class="line">    <span class="comment">// 实例销毁时一并销毁存储的资源并清空缓存对象</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> <span class="keyword">this</span>.cache) &#123;</span><br><span class="line">      pruneCacheEntry(<span class="keyword">this</span>.cache, key, <span class="keyword">this</span>.keys)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  mounted () &#123;</span><br><span class="line">    <span class="comment">// DOM加载完成后，观察include和exclude属性的变动</span></span><br><span class="line">    <span class="comment">// 回调执行修改缓存对象的操作</span></span><br><span class="line">    <span class="keyword">this</span>.$watch(<span class="string">'include'</span>, val =&gt; &#123;</span><br><span class="line">      pruneCache(<span class="keyword">this</span>, name =&gt; matches(val, name))</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">this</span>.$watch(<span class="string">'exclude'</span>, val =&gt; &#123;</span><br><span class="line">      pruneCache(<span class="keyword">this</span>, name =&gt; !matches(val, name))</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  render () &#123;</span><br><span class="line">    <span class="comment">// 实例渲染函数</span></span><br><span class="line">    <span class="comment">// 获取keep-alive包含的子组件结构</span></span><br><span class="line">    <span class="comment">// keep-alive组件并不渲染任何真实DOM节点，只渲染嵌套在其中的组件资源</span></span><br><span class="line">    <span class="keyword">const</span> slot = <span class="keyword">this</span>.$slots.default</span><br><span class="line">    <span class="comment">// 将嵌套组件dom结构转化成虚拟节点</span></span><br><span class="line">    <span class="keyword">const</span> vnode: VNode = getFirstComponentChild(slot)</span><br><span class="line">    <span class="comment">// 获取嵌套组件的配置对象</span></span><br><span class="line">    <span class="keyword">const</span> componentOptions: ?VNodeComponentOptions = vnode &amp;&amp; vnode.componentOptions</span><br><span class="line">    <span class="comment">// 如果配置对象存在</span></span><br><span class="line">    <span class="keyword">if</span> (componentOptions) &#123;</span><br><span class="line">      <span class="comment">// 检查是否缓存的模式匹配</span></span><br><span class="line">      <span class="comment">// check pattern</span></span><br><span class="line">      <span class="comment">// 获取嵌套组件名称</span></span><br><span class="line">      <span class="keyword">const</span> name: ?string = getComponentName(componentOptions)</span><br><span class="line">      <span class="comment">// 获取传入keep-alive组件的include和exclude属性</span></span><br><span class="line">      <span class="keyword">const</span> &#123; include, exclude &#125; = <span class="keyword">this</span></span><br><span class="line">      <span class="comment">// 如果有included，且该组件不匹配included中资源</span></span><br><span class="line">      <span class="comment">// 或者有exclude。且该组件匹配exclude中的资源</span></span><br><span class="line">      <span class="comment">// 则返回虚拟节点，不继续执行缓存</span></span><br><span class="line">      <span class="keyword">if</span> (</span><br><span class="line">        <span class="comment">// not included</span></span><br><span class="line">        (include &amp;&amp; (!name || !matches(include, name))) ||</span><br><span class="line">        <span class="comment">// excluded</span></span><br><span class="line">        (exclude &amp;&amp; name &amp;&amp; matches(exclude, name))</span><br><span class="line">      ) &#123;</span><br><span class="line">        <span class="keyword">return</span> vnode</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 获取keep-alive组件的cache和keys对象</span></span><br><span class="line">      <span class="keyword">const</span> &#123; cache, keys &#125; = <span class="keyword">this</span></span><br><span class="line">      <span class="comment">// 获取嵌套组件虚拟节点的key</span></span><br><span class="line">      <span class="keyword">const</span> key: ?string = vnode.key == <span class="literal">null</span></span><br><span class="line">        <span class="comment">// 同样的构造函数可能被注册为不同的本地组件，所以cid不是判断的充分条件</span></span><br><span class="line">        <span class="comment">// same constructor may get registered as different local components</span></span><br><span class="line">        <span class="comment">// so cid alone is not enough (#3269)</span></span><br><span class="line">        ? componentOptions.Ctor.cid + (componentOptions.tag ? <span class="string">`::<span class="subst">$&#123;componentOptions.tag&#125;</span>`</span> : <span class="string">''</span>)</span><br><span class="line">        : vnode.key</span><br><span class="line">      <span class="comment">// 如果缓存对象里有以key值存储的组件资源</span></span><br><span class="line">      <span class="keyword">if</span> (cache[key]) &#123;</span><br><span class="line">        <span class="comment">// 设置当前嵌套组件虚拟节点的componentInstance属性</span></span><br><span class="line">        vnode.componentInstance = cache[key].componentInstance</span><br><span class="line">        <span class="comment">// make current key freshest</span></span><br><span class="line">        <span class="comment">// 从keys中移除旧key，添加新key</span></span><br><span class="line">        remove(keys, key)</span><br><span class="line">        keys.push(key)</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 缓存中没有该资源，则直接存储资源，并存储key值</span></span><br><span class="line">        cache[key] = vnode</span><br><span class="line">        keys.push(key)</span><br><span class="line">        <span class="comment">// 如果设置了最大缓存资源数，从最开始的序号开始删除存储资源</span></span><br><span class="line">        <span class="comment">// prune oldest entry</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.max &amp;&amp; keys.length &gt; <span class="built_in">parseInt</span>(<span class="keyword">this</span>.max)) &#123;</span><br><span class="line">          pruneCacheEntry(cache, keys[<span class="number">0</span>], keys, <span class="keyword">this</span>._vnode)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 设置该资源虚拟节点的keepAlive标识</span></span><br><span class="line">      vnode.data.keepAlive = <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 返回虚拟节点或dom节点</span></span><br><span class="line">    <span class="keyword">return</span> vnode || (slot &amp;&amp; slot[<span class="number">0</span>])</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>keep-alive</code> 组件的实现也就这百来行代码，分为两部分：第一部分是定义一些处理具体实现的函数，比如修剪缓存对象存储资源的函数，匹配组件包含和过滤存储的函数；第二部分是导出一份 <code>keep-alive</code> 组件的应用配置对象，仔细一下这跟我们在实际中使用的方式是一样的，但这个组件具有已经定义好的特殊功能<br>，就是缓存嵌套在它之中的组件资源，实现持久活跃。</p>
+<p>那么实现原理是什么，在代码里可以清楚得看到，这里是利用转换组件真实DOM节点为虚拟节点将其存储到 <code>keep-alive</code> 实例的 <code>cache</code> 对象中，另外也一并存储了资源的 <code>key</code> 值方便查找，然后在渲染时检测其是否符合缓存条件再进行渲染。<code>keep-alive</code> 的实现就是以上这样简单。</p>
+<hr>
+<p>最初一瞥此段代码时，不知所云。然而当开始逐步分析代码之后，才发现原来只是没有仔细去看，误以为很深奥，由此可见，任何不用心的行为都不能直抵事物的本质，这是借由探索这一小部分代码而得到的教训。因为在实际中有使用过这个功能，所以体会更深，有时候难免会踩到一些坑，看了源码的实现之后，发现原来是自己使用方式不对，所以了解所用轮子的实现还是很有必要的。</p>
+
+  </div>
+  
+  <section id="comments" class="comments">
+    <div class="valine-comment"></div>
+<!--载入js，在</body>之前插入即可-->
+<!--Leancloud 操作库:-->
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<!--Valine 的核心代码库-->
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<script>
+new Valine({
+    el: '.valine-comment',
+    app_id: 'DKiK5z8iNqcTBYteGEiuxyaP-gzGzoHsz',
+    app_key: '0SPtM0nGzQdGBXxpwbOSLTXV',
+    placeholder: '有什么话想告诉我？',
+    visitor: 'true',
+  })
+</script>
+  </section>
+  
+</article>
+    </main>
+    <footer id="footer">
+  Copyright &copy; 2025 Shio  
+  <a class="social-links" href="https://github.com/ushio-s"
+    ><i class="blogfont">&#xe6b7; </i></a
+  >
+  
+  <a class="social-links" href="mailto:jylzs369@163.com"
+    ><i class="blogfont">&#xe61a; </i></a
+  >
+  
+  <a class="social-links" href="https://www.jianshu.com/u/70c1c469e3b6"
+    ><i class="blogfont">&#xe6d7; </i></a
+  >
+  
+  <a class="social-links" href="https://www.zhihu.com/people/jylzs369"
+    ><i class="blogfont">&#xe606; </i></a
+  >
+  
+  <a class="social-links" href="/atom.xml"
+    ><i class="blogfont">&#xe640; </i></a
+  >
+    <a href="https://beian.miit.gov.cn/" title="粤ICP备20052180号" target="_blank" rel="noopener">粤ICP备20052180号</a>
+</footer>
+
+    <!-- scripts -->
+
+<script src="/scripts/main.js"></script>
+
+  </body>
+</html>

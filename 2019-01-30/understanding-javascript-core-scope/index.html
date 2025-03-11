@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html  lang=zh-CN>
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  
+    
+    <link rel="shortcut icon" href="/images/favicon.ico ">
+    
+    
+    <link rel="icon" type="image/png" href="/images/favicon-android.png " sizes="192x192">
+    
+    
+    <link rel="apple-touch-icon" href="/images/favicon-apple.png " sizes="180x180">
+    
+  
+  <!-- title -->
+  <title>Shio&#39;s Psycology Life 理解JavaScript的核心知识点：作用域 </title>
+  <!-- styles -->
+  <!-- styles -->
+
+<link rel="stylesheet" href="/styles/global.css">
+
+  <!-- rss -->
+  
+  <link rel="alternate" href="/atom.xml" title="Shio&#39;s Psycology Life" type="application/atom+xml" />
+  
+<meta name="generator" content="Hexo 4.2.1"></head>
+  <body>
+    <header id="header">
+  
+  <nav class="menu menu--right">
+  
+    <a class="menu__item" href="/">主页</a>
+    <a class="menu__item" href="/archives/">归档</a>
+    <a class="menu__item" href="/categories/">专题</a>
+    <a class="menu__item" href="/tags/">标签</a>
+    <!-- <a class="menu__item" href="/">作品</a> -->
+    <!-- <a class="menu__item" href="/about/">关于</a> -->
+  </nav>
+</header>
+    <main>
+      <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post__header">
+  <h1 class="post__title">理解JavaScript的核心知识点：作用域</h1>
+  
+  
+  <div class="post__meta">
+    
+<time class="post__date" datetime="2019-01-30T02:40:15.000Z" itemprop="datePublished">
+  
+  <i class="blogfont">&#xedff;</i>
+  
+  2019-01-30 10:40:15
+</time>
+
+    
+<div class="post__category">
+  <i class="blogfont">&#xe62d;</i>
+  <a class="category-link" href="/categories/Dev/">Dev</a>, <a class="category-link" href="/categories/Dev/Understanding-JavaScript/">Understanding JavaScript</a>
+</div>
+  
+
+    
+<div class="post__tag">
+  <i class="blogfont">&#xe7ec;</i>
+  <a class="tag-link" href="/tags/JavaScript/" rel="tag">JavaScript</a>
+</div>
+
+
+    <div id="/2019-01-30/understanding-javascript-core-scope/" class="leancloud_visitors post__stat" data-flag-title="理解JavaScript的核心知识点：作用域">
+  <i class="blogfont">&#xe672;</i>
+  <span class="leancloud-visitors-count">loading...</span>
+</div>
+  </div>
+</header>
+  <aside class="post__aside">
+  <div class="post__actions">
+    <a id="backTop" class="post__top" href="javascript:">
+      <i class="blogfont">&#xe6b1;</i><!-- 回到顶部 -->
+    </a>
+    <!-- <a id="share" class="post__share" href="javascript:">
+      <i class="blogfont">&#xe6c1;</i>
+    </a> -->
+  </div>
+  <ol class="post__toc"><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#关于作用域：About-Scope"><span class="post__toc-text">关于作用域：About Scope</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#定义：Definition"><span class="post__toc-text">定义：Definition</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#目的：Purpose"><span class="post__toc-text">目的：Purpose</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#生成：Generate"><span class="post__toc-text">生成：Generate</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#相关概念：Relevant-Concepts"><span class="post__toc-text">相关概念：Relevant Concepts</span></a><ol class="post__toc-child"><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#词法作用域：Lexical-Scope"><span class="post__toc-text">词法作用域：Lexical Scope</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#函数作用域：Function-Scope"><span class="post__toc-text">函数作用域：Function Scope</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#块级作用域：Block-Scope"><span class="post__toc-text">块级作用域：Block Scope</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#全局作用域：Global-Scope"><span class="post__toc-text">全局作用域：Global Scope</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#局部作用域：Local-Scope"><span class="post__toc-text">局部作用域：Local Scope</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#公有作用域：Public-Scope"><span class="post__toc-text">公有作用域：Public Scope</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#私有作用域：Private-Scope"><span class="post__toc-text">私有作用域：Private Scope</span></a></li></ol></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#作用域与This：Scope-vs-This"><span class="post__toc-text">作用域与This：Scope vs This</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#参考文献：Reference"><span class="post__toc-text">参考文献：Reference</span></a></li></ol>
+</aside>
+  <div class="post__content" itemprop="articleBody">
+    <h2 id="关于作用域：About-Scope"><a href="#关于作用域：About-Scope" class="headerlink" title="关于作用域：About Scope"></a>关于作用域：About Scope</h2><p>作用域是程序设计里的基础特性，是作用域使得程序运行时可以使用变量存储值、记录和改变程序的“状态”。<code>JavaScript</code> 也毫不例外，但在 <code>JavaScript</code> 中作用域的特性与其他高级语言稍有不同，这是很多学习者久久难以理清的一个核心知识点。</p>
+<h2 id="定义：Definition"><a href="#定义：Definition" class="headerlink" title="定义：Definition"></a>定义：Definition</h2><p>首先引用两处我认为比较精辟的对作用域定义的总结：</p>
+<blockquote>
+<p>Scope is the accessibility of variables, functions, and objects in some particular part of your code during runtime. In other words, scope determines the visibility of variables and other resources in areas of your code.</p>
+</blockquote>
+<p>翻译：作用域是在运行时对代码某些特定部分中的变量、函数和对象的可访问性。换句话说，作用域决定代码区域中变量和其他资源的可见性。</p>
+<blockquote>
+<p>Scope is the set of rules that determines where and how a variable (identifier) can be looked-up.</p>
+</blockquote>
+<p>翻译：作用域是一套规则，决定变量定义在何处以及如何查找变量。</p>
+<p>综上所述，我们可以把作用域理解成是在一套在程序运行时控制变量访问的管理机制。它规定了变量可见的区域、变量查找规则、嵌套时的检索方法。</p>
+<h2 id="目的：Purpose"><a href="#目的：Purpose" class="headerlink" title="目的：Purpose"></a>目的：Purpose</h2><p>利用作用域是为了遵循程序设计中的最小访问原则，也称<a href="https://baike.baidu.com/item/%E6%9C%80%E5%B0%8F%E7%89%B9%E6%9D%83%E5%8E%9F%E5%88%99" target="_blank" rel="noopener">最小特权原则</a>，这是一种以安全性为考量的程序设计原则，可以便于快速定位错误，将发生错误时的损失控制在最低程度。<a href="https://scotch.io/tutorials/understanding-scope-in-JavaScript#toc-why-scope-the-principle-of-least-access" target="_blank" rel="noopener">这篇文章的这一部分</a>举了一个电脑管理员的例子来说明最小访问原则在计算机领域的重要性。</p>
+<p>在编程语言中，作用域还有另外两个好处——规避变量名称冲突和隐藏内部实现。</p>
+<p>我们知道每个作用域具有自己的权利控制范围，在不同的作用域中定义相同名称的变量是完全可行的。实现这一可能性的底层机制叫做“遮蔽效益”。这一机制体在嵌套作用域下得到了更好的体现，因为变量查找的规则是逐级向上，遇到匹配则停止，当内外层都有同名变量的时候，如已在内层找到匹配的变量，就不会再继续向外层作用域查找了，就像是内层的变量把外层的同名变量遮蔽住了一样。是不是感觉非常熟悉？没错，这也是 <code>JavaScript</code> 中原型链查找的内部机制！</p>
+<p>隐藏内部实现其实是一种编程的最佳实践，因为只要编程者愿意，大可暴露出全部代码的内部实现细节。但众所周知，这是不安全的。如果第三者在不可控的情况下修改了正常代码，影响程序的运行，这将带来灾难性的后果，这不仅是库开发者们首先会考虑的安全性问题，也是业务逻辑开发者们需要谨慎对待的可能冲突，这就是模块化之所以重要的原因。其他编程语言在语法特性层面就支持共有和私有作用域的概念，而 <code>JavaScript</code> 官方暂时还没有正式支持。目前用以隐藏内部实现的模块模式主要依赖闭包，所以闭包这一在JS领域具有独特神秘性的机制被广大开发者们又恨又爱。即便 <code>ES6</code> 的新模块机制支持以文件形式划分模块，仍然离不开闭包。</p>
+<h2 id="生成：Generate"><a href="#生成：Generate" class="headerlink" title="生成：Generate"></a>生成：Generate</h2><p>作用域的生成主要依靠词法定义，许多语言中有函数作用域和块级作用域。<code>JavaScript</code> 主要使用的是函数作用域。怎么理解词法定义作用域？词法就是书写规则，编译器会按照所书写的代码确定出作用域范围。</p>
+<p>大多数编程语言里都用 <code>{}</code> 来包裹一些代码语句，编译器就会将它理解为一个块级，它内部的范围就是这个块级的作用域，函数也是如此，写了多少个函数就有相应数量的作用域。虽然 <code>JavaScript</code> 是少数没有实现块级作用域的编程语言，但其实在早期的 <code>JavaScript</code> 中就有几个特性可以变相实现块级作用域，如 <code>with</code>、<code>catch</code> 语句：<code>with</code> 语句会根据传入的对象创建出一个特殊作用域，只在 <code>with</code> 中有效；而 <code>catch</code> 语句中捕捉到的错误变量在外部无法访问的原因，正是因为它创建出了一个自己的块级作用域，据 <code>You Don&#39;t Know JS</code> 的作者说市面上支持块级作用域书写风格的转译插件或 <code>CoffeeScript</code> 之类的转译语言内部都是依靠 <code>catch</code> 来实现的，that’s so tricky!</p>
+<h2 id="相关概念：Relevant-Concepts"><a href="#相关概念：Relevant-Concepts" class="headerlink" title="相关概念：Relevant Concepts"></a>相关概念：Relevant Concepts</h2><p>在这里只讨论 <code>JavaScript</code> 中以下概念的内容和实现方式。</p>
+<h3 id="词法作用域：Lexical-Scope"><a href="#词法作用域：Lexical-Scope" class="headerlink" title="词法作用域：Lexical Scope"></a>词法作用域：Lexical Scope</h3><p>通过上面所说的相关知识可以总结出<strong>词法作用域就是按照书写时的函数位置来决定的作用域</strong>。</p>
+<p>看看下面这段代码，这段代码展示了除全局作用域之外的 <code>3</code> 个函数作用域，分别是函数 <code>a</code> 、函数 <code>b</code> 、函数 <code>c</code> 所各自拥有的地盘：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">a</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> aa = <span class="string">'aa'</span>;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">b</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> bb = <span class="string">'bb'</span></span><br><span class="line">        <span class="built_in">console</span>.log(aa, bb)</span><br><span class="line">        c();</span><br><span class="line">    &#125;</span><br><span class="line">    b();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">c</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> cc = <span class="string">'cc'</span></span><br><span class="line">    <span class="built_in">console</span>.log(aa, bb, cc)</span><br><span class="line">&#125;</span><br><span class="line">a();</span><br></pre></td></tr></table></figure>
+
+<p>各个变量所属的作用域范围是显而易见的，但这段代码的执行结果是什么呢？一但面临嵌套作用域的情景，或许很多人又要犹疑了，接下来才是词法作用域的重点。</p>
+<p>上面代码的执行结果如下所示：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// b()：</span></span><br><span class="line">aa bb</span><br><span class="line"><span class="comment">// c()：</span></span><br><span class="line">Uncaught <span class="built_in">ReferenceError</span>: aa is not defined</span><br></pre></td></tr></table></figure>
+
+<p>函数 <code>c</code> 的运行报错了！错误说没有找到变量 <code>aa</code>。按照函数调用时的代码来看，函数 <code>c</code> 写在函数 <code>b</code> 里，按道理来讲，函数 <code>c</code> 不是应该可以访问它嵌套的两层父级函数作用域么？从执行结果得知，词法作用域不关心函数在哪里调用，只关心函数定义在哪里，所以函数 <code>c</code> 其实直接存在全局作用域下，与函数 <code>a</code> 同级，它俩根本就是没有任何交点的世界，无法互相访问，这就是词法作用域的法则！</p>
+<p>请谨记 <code>JavaScript</code> 就是一个应用词法作用域法则的世界。而按照函数调用时决定的作用域叫做<strong>动态作用域</strong>，在 <code>JavaScript</code> 里我们不关心它，所以把它扔出字典。</p>
+<h3 id="函数作用域：Function-Scope"><a href="#函数作用域：Function-Scope" class="headerlink" title="函数作用域：Function Scope"></a>函数作用域：Function Scope</h3><p>很长时间以来，<code>JavaScript</code> 里只存在函数作用域（让我们暂时忽略那些里世界的块级作用域 <code>tricky</code>），所有的作用域都是以函数级别存在。对此做出最明显反证的就是条件、循环语句。函数作用域的例子在上述词法作用域中已经得到了很好的体现，就不再赘述了，这里主要探讨一下函数作用域链的机制。</p>
+<p>以下面一段代码为例：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">c</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> cc = <span class="string">'cc'</span></span><br><span class="line">    <span class="built_in">console</span>.log(cc)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">a</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> aa = <span class="string">'aa'</span></span><br><span class="line">    <span class="built_in">console</span>.log(aa)</span><br><span class="line">    b();</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">b</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> bb = <span class="string">'bb'</span></span><br><span class="line">    <span class="built_in">console</span>.log(aa, bb)</span><br><span class="line">&#125;</span><br><span class="line">a();</span><br><span class="line">c();</span><br></pre></td></tr></table></figure>
+
+<p>一个程序里可以有很多函数作用域，引擎怎么确定先从哪个作用域开始，按照词法规则先写先执行？当然不，这时就看谁先调用。函数在作用域中的声明会被提升，函数声明的书写位置不会影响函数调用，参照上例，即便是函数 <code>a</code> 定义在函数 <code>c</code> 后面，由于它会被先调用，所以在全局作用域之后还是会先进入函数 <code>a</code> 的作用域，那函数 <code>b</code> 和函数 <code>c</code> 的顺序又如何，为了解释清楚词法作用域是如何与函数调用机制结合起来，接下来要分两部分研究程序运行的细节。</p>
+<p>都说 <code>JavaScript</code> 是个动态编程语言，然而它的作用域查找规则又是按照词法作用域（也是俗称的<strong>静态作用域</strong>）规则来决定的，实在让人费解。理解它动（执行时编译）静（运行前编译）结合的关键在于引擎在执行程序时的两个阶段：编译和运行。为了避免歧义，区分了两个词：</p>
+<ul>
+<li><strong>执行</strong>：引擎对程序的整体执行过程，包括编译、运行阶段。</li>
+<li><strong>运行</strong>：具体代码的执行或函数调用的过程。</li>
+</ul>
+<p><code>JavaScript</code> 的<strong>动</strong>指的是在程序被执行时才进行编译，仅在代码运行前。而一般语言是先经过编译过程，随后才会被执行的，编译器与引擎执行是继时性的。<strong>静</strong>指函数作用域是根据编译时按照词法规则来确定的，不由调用时所处作用域决定。</p>
+<p>简单来说，函数的运行和其中变量的查找是两套规则：函数作用域中的变量查找基于作用域链，而函数的调用顺序依赖函数调用的背后机制——<strong>调用栈</strong>来决定。在编译阶段，编译器收集了函数作用域的嵌套层级，形成了变量查找规则依赖的作用域链。函数调用栈使函数像栈的数据结构一样排成队列按照<strong>先进后出</strong>的规则先后运行，再根据<code>JavaScript</code> 的同步执行机制，得出正确的执行顺序是：函数 <code>a</code> =&gt;函数 <code>b</code> =&gt;函数 <code>c</code>。最后再结合词法作用域法则推断出上面示例的执行结果仅仅是一句报错提示：<code>Uncaught ReferenceError: aa is not defined</code>。把函数 <code>b</code> 引用的变量 <code>aa</code> 去掉，就可以得到完整的执行顺序的展示。</p>
+<h3 id="块级作用域：Block-Scope"><a href="#块级作用域：Block-Scope" class="headerlink" title="块级作用域：Block Scope"></a>块级作用域：Block Scope</h3><p><code>let</code>、<code>const</code> 声明的出现终于打破了 <code>JavaScript</code> 里没有块级作用域的规则，我们可以显示使用块级语法 <code>{}</code> 或隐式地与 <code>let</code>、<code>const</code> 相结合实现块级作用域。</p>
+<p>隐式（<code>let</code>、<code>const</code> 声明会自动劫持所在作用域形成绑定关系，所以下例中并不是在 <code>if</code> 的块级定义，而是在它的代码块内部创建了一个块级作用域，注意在 <code>if</code> 的条件语句中 <code>a</code> 尚未定义）：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (a === <span class="string">'a'</span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> a = <span class="string">'a'</span></span><br><span class="line">    <span class="built_in">console</span>.log(a)</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'a is not defined！'</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>显式（显式写法揭露了块级变量定义的真实所在）：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 普通写法，稍显啰嗦</span></span><br><span class="line"><span class="keyword">if</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">let</span> a = <span class="string">'a'</span></span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// You Don't Know JS的作者提倡的写法，保持let声明在最前，与代码块语句区分开</span></span><br><span class="line"><span class="keyword">if</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    &#123; <span class="keyword">let</span> a = <span class="string">'a'</span></span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 希望未来官方能支持的写法</span></span><br><span class="line"><span class="keyword">if</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> (a = <span class="string">'a'</span>) &#123;</span><br><span class="line">        ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>关于块级作用域最后要关注的一个问题是<strong>暂时性死区</strong>，这个问题可以描述为：当提前使用了以 <code>var</code> 声明的变量得到的是 <code>undefined</code>，没有报错，而提前使用以 <code>let</code> 声明的变量则会抛出 <code>ReferenceError</code>。暂时性死区就是用来解释这个问题的原因。很简单，规范不允许在还没有运行到声明语句时就引用变量。来看一下根据官方非正式规范得出的解释：</p>
+<blockquote>
+<p>When a JavaScript engine looks through an upcoming block and finds a variable declaration, it either hoists the declaration to the top of the function or global scope (for var) or places the declaration in the TDZ (for let and const). Any attempt to access a variable in the TDZ results in a runtime error. That variable is only removed from the TDZ, and therefore safe to use, once execution flows to the variable declaration.</p>
+</blockquote>
+<p>翻译：当 <code>JavaScript</code> 引擎浏览即将出现的代码块并查找变量声明时，它既把声明提升到了函数的顶部或全局作用域（对于 <code>var</code> ），也将声明放入暂时性死区（对于 <code>let</code> 和<code>const</code>）。任何想要访问暂时性死区中变量的尝试都会导致运行时错误。只有当执行流到达变量声明的语句时，该变量才会从暂时性死区中移除，可以安全访问。</p>
+<p>另外，把 <code>let</code> 跟 <code>var</code> 声明作两点比较能更好排除其他疑惑。以下述代码为例：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(a);</span><br><span class="line"><span class="keyword">var</span> a;</span><br><span class="line"><span class="built_in">console</span>.log(b);</span><br><span class="line"><span class="keyword">let</span> b;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>变量提升</strong>：<code>let</code> 与 <code>var</code> 定义的变量一样都存在提升。</li>
+<li><strong>默认赋值</strong>：<code>let</code> 与 <code>var</code> 声明却未赋值的变量都相当于默认赋值 <code>undefined</code>。</li>
+</ul>
+<p><code>let</code> 与 <code>var</code> 声明提前引用导致的结果的区别仅仅是因为在编译器在词法分析阶段，将块级作用域变量做了特殊处理，用暂时性死区把它们包裹住，保持块级作用域的特性。</p>
+<h3 id="全局作用域：Global-Scope"><a href="#全局作用域：Global-Scope" class="headerlink" title="全局作用域：Global Scope"></a>全局作用域：Global Scope</h3><p>全局作用域仿佛是透明存在的，容易受到忽视，就像人们经常忘记身处氧气包裹中一样，变量无法超越全局作用域存在，人们也无法脱离地球给我们提供的氧气圈。简而言之，<strong>全局作用域就是运行时的顶级作用域</strong>，一切的一切都归属于顶级作用域，它的地位如同宇宙。</p>
+<p>我们在所有函数之外定义的变量都归属于全局作用域，这个“全局”视 <code>JavaScript</code> 代码运行的环境而定，在浏览器中是 <code>window</code> 对象，在 <code>Node.js</code> 里就是 <code>global</code> 对象，或许以后还会有更多其他的全局对象。全局对象拥有的势力范围就是它们的作用域，定义在它们之中的变量对所有其他内层作用域都是可见的，即共享，所以开发者们都非常讨厌在全局定义变量，这继承自上面所说的最小特权原则的思想，为安全起见，定义在全局作用域里的变量越少越好，于是一个叫做<strong>全局污染</strong>的话题由此引发。</p>
+<p>全局作用域在运行时会由引擎创建，不需要我们自己来实现。</p>
+<h3 id="局部作用域：Local-Scope"><a href="#局部作用域：Local-Scope" class="headerlink" title="局部作用域：Local Scope"></a>局部作用域：Local Scope</h3><p>与全局作用域相对的概念就是局部作用域，或者叫本地作用域。<strong>局部作用域就是在全局作用域之下创建的任何内层作用域</strong>，可以说我们定义的任何函数和块级作用域都是局部作用域，一般在用来与全局作用域做区别的时候才会采用这种概括说法。在开发中，我们主要关心的是使用函数作用域来实现局部作用域的这一具体方式。</p>
+<h3 id="公有作用域：Public-Scope"><a href="#公有作用域：Public-Scope" class="headerlink" title="公有作用域：Public Scope"></a>公有作用域：Public Scope</h3><p><strong>公有作用域存在于模块中，它是提供项目中所有其他模块都可以访问的变量和方法的范围或命名空间</strong>。公私作用域的概念与模块化开发息息相关，我们通常关心的是定义在公私作用域中的属性或方法。</p>
+<p>模块化提供给程序更多的安全性控制，并隐蔽内部实现细节，但是要让程序很好的实现功能，我们有访问模块内部作用域中数据的需要。从作用域链的查找机制可知，外层作用域是无法访问内层作用域变量的，而<code>JavaScript</code> 中公私作用域的概念也不像其他编程语言中那么完整，不能通过词法直接定义公有和私有作用域变量，所以闭包成为了模块化开发中的核心力量。</p>
+<p>闭包实现了在外层作用域中访问内层作用域变量的可能，其方法就是在内层函数里再定义一个内层函数，用来保留对想要访问的函数作用域的内存引用，这样外层作用域就可以通过这个保留引用的闭包来访问内层函数里的数据了。</p>
+<p>通过下面两段代码的执行结果就能看出区别：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">a</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> aa = <span class="string">'aa'</span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">b</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> bb = <span class="string">'bb'</span></span><br><span class="line">    &#125;</span><br><span class="line">    b()</span><br><span class="line">    <span class="built_in">console</span>.log(bb)</span><br><span class="line">&#125;</span><br><span class="line">a()</span><br></pre></td></tr></table></figure>
+
+<p>控制台报错：<code>Uncaught ReferenceError: bb is not defined</code>，因为函数 <code>b</code> 在运行完后就从执行栈里出栈了，其内存引用也被内存回收机制清理掉了。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">a</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> aa = <span class="string">'aa'</span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">b</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> bb = <span class="string">'bb'</span></span><br><span class="line">        <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> <span class="title">c</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">            <span class="built_in">console</span>.log(bb)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">var</span> c = b()</span><br><span class="line">    <span class="built_in">console</span>.log(c())</span><br><span class="line">&#125;</span><br><span class="line">a()</span><br></pre></td></tr></table></figure>
+
+<p>而这段代码中用变量 <code>c</code> 保留了对函数 <code>b</code> 中返回的函数 <code>c</code> 的引用，函数 <code>c</code> 又根据词法作用域法则，能够进入函数 <code>b</code> 的作用域查找变量，这个引用形成的闭包就被保存在函数 <code>a</code> 中变量 <code>c</code> 的值中，函数 <code>a</code> 可以在任何想要的时候调用这个闭包来获取函数 <code>b</code> 里的数据。此时这个被返回的变量 <code>bb</code> 就成为了暴露在函数 <code>a</code> 的作用域范围内，定义在函数 <code>b</code> 里的公有作用域变量。</p>
+<p>更加通用的实现公有作用域变量或 <code>API</code> 的方式，称为模块模式：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = (<span class="function"><span class="keyword">function</span> <span class="title">a</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> aa = <span class="string">'aa'</span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">b</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> bb = <span class="string">'bb'</span></span><br><span class="line">        <span class="built_in">console</span>.log(bb)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        aa: aa,</span><br><span class="line">        b: b</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)()</span><br><span class="line"><span class="built_in">console</span>.log(a.aa)</span><br><span class="line">a.b()</span><br></pre></td></tr></table></figure>
+
+<p>使用闭包实现了一个单例模块，输出了共有变量 <code>a.aa</code> 和 共有方法也称 <code>API</code> 的 <code>a.b</code>。</p>
+<h3 id="私有作用域：Private-Scope"><a href="#私有作用域：Private-Scope" class="headerlink" title="私有作用域：Private Scope"></a>私有作用域：Private Scope</h3><p>相对于公有作用域，<strong>私有作用域是存在于模块中，只能提供由定义模块直接访问的变量和方法的范围或命名空间</strong>。要澄清一个关于私有作用域变量的的误会，定义私有作用域变量，不一定是要完全避免被外部模块或方法访问，更多时候是禁止它们被直接访问。大多时候可以通过模块暴露出的公有方法来间接地访问私有作用域变量，当然想不想让它被访问或者如何限制它的增删改查就是开发者自己掌控的事情了。</p>
+<p>接着上述公有作用域的实现，来看看私有作用域的实现。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = (<span class="function"><span class="keyword">function</span> <span class="title">a</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> bb = <span class="string">'bb'</span></span><br><span class="line">    <span class="keyword">var</span> cc = <span class="string">'c'</span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">b</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="built_in">console</span>.log(bb)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">c</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        cc = <span class="string">'cc'</span></span><br><span class="line">        <span class="built_in">console</span>.log(cc)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        b: b,</span><br><span class="line">        c: c</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)()</span><br><span class="line">a.b()</span><br><span class="line">a.c()</span><br></pre></td></tr></table></figure>
+<p>在模块 <code>a</code> 中定义的属性 <code>bb</code> 和 <code>cc</code> 都是无法直接通过引用来获取的。但是模块暴露的两个方法 <code>b</code> 和 <code>c</code>，分别实现了一个查找操作和修改操作，间接控制模块中上述两个私有作用域变量。</p>
+<h2 id="作用域与This：Scope-vs-This"><a href="#作用域与This：Scope-vs-This" class="headerlink" title="作用域与This：Scope vs This"></a>作用域与This：Scope vs This</h2><p>在对作用域是什么的理解中，最大的一个误区就是把作用域当作 <code>this</code> 对象。</p>
+<p>一个铁打的证据是函数作用域的确定是在词法分析时，属于编译阶段，而 <code>this</code> 对象是在运行时动态绑定到函数作用域里的。另一个更明显的证据是当函数调用时，它们内部的 <code>this</code> 指的是全局对象，而不是函数本身， 想必所有开发者都踩过这一坑，能够理解作用域与 <code>this</code> 本质上的区别。从这两点就可以肯定决不能把作用域与 <code>this</code> 等同对待。</p>
+<p><code>this</code> 到底是什么？它跟作用域有很大关系，但具体留到以后再讨论吧。在此之前我们先要与作用域成为好朋友。</p>
+<h2 id="参考文献：Reference"><a href="#参考文献：Reference" class="headerlink" title="参考文献：Reference"></a>参考文献：Reference</h2><ul>
+<li><a href="https://github.com/getify/You-Dont-Know-JS/blob/master/scope%20%26%20closures/ch1.md" target="_blank" rel="noopener">You Don’t Know JS: Scope &amp; Closures</a></li>
+<li><a href="https://scotch.io/tutorials/understanding-scope-in-JavaScript" target="_blank" rel="noopener">Understanding Scope in JavaScript</a></li>
+<li><a href="https://leanpub.com/understandinges6/read#leanpub-auto-functions-with-default-parameter-values" target="_blank" rel="noopener">Understanding ECMAScript 6</a></li>
+<li><a href="https://toddmotto.com/everything-you-wanted-to-know-about-javascript-scope/" target="_blank" rel="noopener">Everything you wanted to know about JavaScript scope</a></li>
+<li><a href="https://docs.microsoft.com/en-us/office/vba/language/concepts/getting-started/understanding-scope-and-visibility" target="_blank" rel="noopener">Understanding scope and visibility</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2018/06/javascript-this.html" target="_blank" rel="noopener">JavaScript 的 this 原理</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2013/11/stack.html" target="_blank" rel="noopener">Stack的三种含义</a></li>
+<li><a href="http://jsrocks.org/2015/01/temporal-dead-zone-tdz-demystified" target="_blank" rel="noopener">TEMPORAL DEAD ZONE (TDZ) DEMYSTIFIED</a></li>
+</ul>
+
+  </div>
+  
+  <section id="comments" class="comments">
+    <div class="valine-comment"></div>
+<!--载入js，在</body>之前插入即可-->
+<!--Leancloud 操作库:-->
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<!--Valine 的核心代码库-->
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<script>
+new Valine({
+    el: '.valine-comment',
+    app_id: 'DKiK5z8iNqcTBYteGEiuxyaP-gzGzoHsz',
+    app_key: '0SPtM0nGzQdGBXxpwbOSLTXV',
+    placeholder: '有什么话想告诉我？',
+    visitor: 'true',
+  })
+</script>
+  </section>
+  
+</article>
+    </main>
+    <footer id="footer">
+  Copyright &copy; 2025 Shio  
+  <a class="social-links" href="https://github.com/ushio-s"
+    ><i class="blogfont">&#xe6b7; </i></a
+  >
+  
+  <a class="social-links" href="mailto:jylzs369@163.com"
+    ><i class="blogfont">&#xe61a; </i></a
+  >
+  
+  <a class="social-links" href="https://www.jianshu.com/u/70c1c469e3b6"
+    ><i class="blogfont">&#xe6d7; </i></a
+  >
+  
+  <a class="social-links" href="https://www.zhihu.com/people/jylzs369"
+    ><i class="blogfont">&#xe606; </i></a
+  >
+  
+  <a class="social-links" href="/atom.xml"
+    ><i class="blogfont">&#xe640; </i></a
+  >
+    <a href="https://beian.miit.gov.cn/" title="粤ICP备20052180号" target="_blank" rel="noopener">粤ICP备20052180号</a>
+</footer>
+
+    <!-- scripts -->
+
+<script src="/scripts/main.js"></script>
+
+  </body>
+</html>

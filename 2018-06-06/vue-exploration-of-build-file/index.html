@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html  lang=zh-CN>
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  
+    
+    <link rel="shortcut icon" href="/images/favicon.ico ">
+    
+    
+    <link rel="icon" type="image/png" href="/images/favicon-android.png " sizes="192x192">
+    
+    
+    <link rel="apple-touch-icon" href="/images/favicon-apple.png " sizes="180x180">
+    
+  
+  <!-- title -->
+  <title>Shio&#39;s Psycology Life Vue源码探究-构建版本的区别 </title>
+  <!-- styles -->
+  <!-- styles -->
+
+<link rel="stylesheet" href="/styles/global.css">
+
+  <!-- rss -->
+  
+  <link rel="alternate" href="/atom.xml" title="Shio&#39;s Psycology Life" type="application/atom+xml" />
+  
+<meta name="generator" content="Hexo 4.2.1"></head>
+  <body>
+    <header id="header">
+  
+  <nav class="menu menu--right">
+  
+    <a class="menu__item" href="/">主页</a>
+    <a class="menu__item" href="/archives/">归档</a>
+    <a class="menu__item" href="/categories/">专题</a>
+    <a class="menu__item" href="/tags/">标签</a>
+    <!-- <a class="menu__item" href="/">作品</a> -->
+    <!-- <a class="menu__item" href="/about/">关于</a> -->
+  </nav>
+</header>
+    <main>
+      <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post__header">
+  <h1 class="post__title">Vue源码探究-构建版本的区别</h1>
+  
+  
+  <div class="post__meta">
+    
+<time class="post__date" datetime="2018-06-06T03:07:25.000Z" itemprop="datePublished">
+  
+  <i class="blogfont">&#xedff;</i>
+  
+  2018-06-06 11:07:25
+</time>
+
+    
+<div class="post__category">
+  <i class="blogfont">&#xe62d;</i>
+  <a class="category-link" href="/categories/Dev/">Dev</a>, <a class="category-link" href="/categories/Dev/Explore-Vue/">Explore Vue</a>
+</div>
+  
+
+    
+<div class="post__tag">
+  <i class="blogfont">&#xe7ec;</i>
+  <a class="tag-link" href="/tags/Vue/" rel="tag">Vue</a>
+</div>
+
+
+    <div id="/2018-06-06/vue-exploration-of-build-file/" class="leancloud_visitors post__stat" data-flag-title="Vue源码探究-构建版本的区别">
+  <i class="blogfont">&#xe672;</i>
+  <span class="leancloud-visitors-count">loading...</span>
+</div>
+  </div>
+</header>
+  <aside class="post__aside">
+  <div class="post__actions">
+    <a id="backTop" class="post__top" href="javascript:">
+      <i class="blogfont">&#xe6b1;</i><!-- 回到顶部 -->
+    </a>
+    <!-- <a id="share" class="post__share" href="javascript:">
+      <i class="blogfont">&#xe6c1;</i>
+    </a> -->
+  </div>
+  <ol class="post__toc"><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#构建版本的比较"><span class="post__toc-text">构建版本的比较</span></a><ol class="post__toc-child"><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#vue-js"><span class="post__toc-text">vue.js</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#vue-min-js"><span class="post__toc-text">vue.min.js</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#vue-common-js"><span class="post__toc-text">vue.common.js</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#vue-esm-js"><span class="post__toc-text">vue.esm.js</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#vue-runtime-js"><span class="post__toc-text">vue.runtime.js</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#vue-runtime-min-js"><span class="post__toc-text">vue.runtime.min.js</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#vue-runtime-common-js"><span class="post__toc-text">vue.runtime.common.js</span></a></li><li class="post__toc-item post__toc-level-3"><a class="post__toc-link" href="#vue-runtime-esm-js"><span class="post__toc-text">vue.runtime.esm.js</span></a></li></ol></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#完整版-vs-运行时版"><span class="post__toc-text">完整版 vs. 运行时版</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#开发模式-vs-生产模式"><span class="post__toc-text">开发模式 vs. 生产模式</span></a></li></ol>
+</aside>
+  <div class="post__content" itemprop="articleBody">
+    <p>基于第三方性能评估工具<a href="https://www.stefankrause.net/js-frameworks-benchmark7/table.html" target="_blank" rel="noopener">Benchmark</a>的测评结果可以看出Vue 2.0版本在整体的性能上得到了大幅优化，即使与React和Angular最新版相比也相差无几。在提供给使用者的构建版本方面，也进行了针对性的细化，输出了多种不同的版本，以便满足不同需求的开发者使用更精细更适合自己的版本。</p>
+<h2 id="构建版本的比较"><a href="#构建版本的比较" class="headerlink" title="构建版本的比较"></a>构建版本的比较</h2><p><a href="https://github.com/vuejs/vue/tree/v2.5.17-beta.0/dist" target="_blank" rel="noopener">官方文档</a>上展示的概括图表（以下译自该文档）：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>UMD</th>
+<th>CommonJS</th>
+<th>ES Module</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Full</strong></td>
+<td>vue.js</td>
+<td>vue.common.js</td>
+<td>vue.esm.js</td>
+</tr>
+<tr>
+<td><strong>Runtime-only</strong></td>
+<td>vue.runtime.js</td>
+<td>vue.runtime.common.js</td>
+<td>vue.runtime.esm.js</td>
+</tr>
+<tr>
+<td><strong>Full (production)</strong></td>
+<td>vue.min.js</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Runtime-only (production)</strong></td>
+<td>vue.runtime.min.js</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>解释一下上表列出的所有版本的内容区别和使用场景，具体的术语就不一一解释了，英语可得靠自己好好学习：</p>
+<h3 id="vue-js"><a href="#vue-js" class="headerlink" title="vue.js"></a><strong><code>vue.js</code></strong></h3><ul>
+<li>内容：完整未压缩版，包括编译器和运行时两部分代码，支持通用模块引入和闭包返回Vue构造函数。</li>
+<li>建议使用场景：需要编译模板的开发环境。</li>
+<li>版本说明：由于未压缩，所以在生产环境下是不推荐使用的，这一版本比较适合学习源代码时使用。另外在Unpkg CDN上默认使用此完整版构建文件。</li>
+</ul>
+<h3 id="vue-min-js"><a href="#vue-min-js" class="headerlink" title="vue.min.js"></a><strong><code>vue.min.js</code></strong></h3><ul>
+<li>内容： 完整压缩版，内容和输出完全同上。</li>
+<li>建议使用场景：需要编译模板的生产环境、浏览器script标签直接引用。</li>
+<li>版本说明：在不想增加使用构建工具的学习曲线和复杂度时，直接使用script标签引入此版本可以无门槛直接进入Vue的学习和使用，并且支持通用模块加载。在生产环境建议使用压缩版可以减少30%的文件体积。</li>
+</ul>
+<h3 id="vue-common-js"><a href="#vue-common-js" class="headerlink" title="vue.common.js"></a><strong><code>vue.common.js</code></strong></h3><ul>
+<li>内容： 完整未压缩CommonJS版，内容同上，区别在于输出的是CommonJS模块。</li>
+<li>建议使用场景：需编译模板且使用老版本构建工具的开发环境。</li>
+<li>版本说明：由于此版本未压缩是不建议直接使用在生产环境上的。如果在使用构建工具的情况下可以直接使用对应的运行时版本，所以该版本的使用场景应该比较有限。</li>
+</ul>
+<h3 id="vue-esm-js"><a href="#vue-esm-js" class="headerlink" title="vue.esm.js"></a><strong><code>vue.esm.js</code></strong></h3><ul>
+<li>内容： 完整未压缩ES Module版，内容同上，区别在于输出的是ES Module模块。</li>
+<li>建议使用场景：需编译模板且使用新版构建工具的开发环境。</li>
+<li>版本说明：同上。</li>
+</ul>
+<h3 id="vue-runtime-js"><a href="#vue-runtime-js" class="headerlink" title="vue.runtime.js"></a><strong><code>vue.runtime.js</code></strong></h3><ul>
+<li>内容： 未压缩运行时版，支持通用模块引入和闭包返回Vue构造函数。</li>
+<li>建议使用场景：不需要编译模板的开发环境。</li>
+<li>版本说明：这一版本也不建议在生产环境使用，需要模块加载可用相应的压缩版。</li>
+</ul>
+<h3 id="vue-runtime-min-js"><a href="#vue-runtime-min-js" class="headerlink" title="vue.runtime.min.js"></a><strong><code>vue.runtime.min.js</code></strong></h3><ul>
+<li>内容： 压缩运行时版，内容和输出完全同上。</li>
+<li>建议使用场景：不需要编译模板的生产环境。</li>
+<li>版本说明：如果不需要编译模板，可以使用这个版本，支持通用模块加载，也可以用script标签引入直接在浏览器中使用，是<strong>体积最小的版本</strong>。</li>
+</ul>
+<h3 id="vue-runtime-common-js"><a href="#vue-runtime-common-js" class="headerlink" title="vue.runtime.common.js"></a><strong><code>vue.runtime.common.js</code></strong></h3><ul>
+<li>内容： 未压缩版CommonJs构建版，内容同上，区别在于输出CommonJS模块。</li>
+<li>建议使用场景：不需编译模板且使用老版本构建工具时。</li>
+<li>版本说明：使用browserify或webpack1时默认使用该版本。</li>
+</ul>
+<h3 id="vue-runtime-esm-js"><a href="#vue-runtime-esm-js" class="headerlink" title="vue.runtime.esm.js"></a><strong><code>vue.runtime.esm.js</code></strong></h3><ul>
+<li>内容： 未压缩版ES module构建版，内容同上，区别在于输出ES module模块。</li>
+<li>建议使用场景：不需编译模板且使用新版构建工具时.</li>
+<li>版本说明：使用webpack2和rollup时默认使用该版本，<strong>在使用最新的vue-cli搭建的webpack脚手架时就是使用了这个版本</strong>。</li>
+</ul>
+<p>另外在仓库里发现的一个叫<code>vue.esm.browser.js</code>的文件，仔细看了一下与<code>vue.esm.js</code>相比用的全是ES6的语法，但图表里没有提到此文件是什么情况下使用，而且是稍前几次构建出的版本，个人猜想可能是没有什么特别的用处，只是没有删掉而已，欢迎指正。</p>
+<h2 id="完整版-vs-运行时版"><a href="#完整版-vs-运行时版" class="headerlink" title="完整版 vs. 运行时版"></a>完整版 vs. 运行时版</h2><p>完整版的使用场景是需要即时编译模板的情况，什么是即时编译模板？</p>
+<p><strong>在程序运行中进行模板编译</strong>。这一过程如同动态加载，当把模板字符串作为配置选项的template属性传入Vue构造函数后再执行渲染进程；或使用DOM已有元素作为模板在运行时加载并编译，这些都是在运行中进行模板编译的实例。由此可见一般使用了<code>type=&quot;text/x-template&quot;</code>的<code>script</code>标签包含的模板就是在代码运行中进行加载编译的，所以此时需要完整版中的编译器来执行把模板转化成渲染函数的过程，否则通过vue进行构造的内容是无法显示的。在开发时如果使用了运行时版，Vue也会在<code>Console</code>中给出提示。</p>
+<p>相反，如果使用构建工具开发，在程序运行之前就先执行了模板的编译过程，<code>.vue</code>单文件组件会被编译转换成javascript代码，在浏览器中可以直接运行，所以此时只需使用运行时版本就可以支持Vue的正常运行，这样Vue的体积更小，有助于提升加载速度，所以在熟悉了Vue之后比较推荐配合使用构建工具来进行开发。</p>
+<h2 id="开发模式-vs-生产模式"><a href="#开发模式-vs-生产模式" class="headerlink" title="开发模式 vs. 生产模式"></a>开发模式 vs. 生产模式</h2><p>官方文档表示在通用模块版本中使用了开发和生产模式的硬编码，未压缩版的用于开发模式，压缩版的用于生产模式。</p>
+<p>在使用构建工具时，建议使用与构建工具版本相应的未压缩版，这样在开发时参考错误信息报告和定位调试是非常便利的，而在构建打包到生产环境时，配套插件会负责压缩代码。</p>
+<p>基于网页性能优化的原则，建议在生产环境中都要使用压缩版。只有在开发时才需要未压缩版中的错误提示信息方便定位错误及调整。</p>
+<hr>
+<p>在2.0版本发布以后，Vue开始提供不同构建版本，大致了解之后发现在不同开发场景下选择适当的版本有助于减少开发时每次打包的速度，并且了解各种版本的不同后也能选择适合的生产版本提升应用的整体性能。在网上找了很久才发现原来官方Github上有比较详细的说明文档解释各种版本的区别，不过对于具体的使用场景没有特别突出的说明，最后还是自己花了些时间去比较和总结，算是又把心中的一块小石头给抹掉。我想对于目前跟我一样还不太了解Vue内部实现机制的同学来说，弄明白各种版本的差异是一个快速得到性能优化最佳实践的途径。</p>
+
+  </div>
+  
+  <section id="comments" class="comments">
+    <div class="valine-comment"></div>
+<!--载入js，在</body>之前插入即可-->
+<!--Leancloud 操作库:-->
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<!--Valine 的核心代码库-->
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<script>
+new Valine({
+    el: '.valine-comment',
+    app_id: 'DKiK5z8iNqcTBYteGEiuxyaP-gzGzoHsz',
+    app_key: '0SPtM0nGzQdGBXxpwbOSLTXV',
+    placeholder: '有什么话想告诉我？',
+    visitor: 'true',
+  })
+</script>
+  </section>
+  
+</article>
+    </main>
+    <footer id="footer">
+  Copyright &copy; 2025 Shio  
+  <a class="social-links" href="https://github.com/ushio-s"
+    ><i class="blogfont">&#xe6b7; </i></a
+  >
+  
+  <a class="social-links" href="mailto:jylzs369@163.com"
+    ><i class="blogfont">&#xe61a; </i></a
+  >
+  
+  <a class="social-links" href="https://www.jianshu.com/u/70c1c469e3b6"
+    ><i class="blogfont">&#xe6d7; </i></a
+  >
+  
+  <a class="social-links" href="https://www.zhihu.com/people/jylzs369"
+    ><i class="blogfont">&#xe606; </i></a
+  >
+  
+  <a class="social-links" href="/atom.xml"
+    ><i class="blogfont">&#xe640; </i></a
+  >
+    <a href="https://beian.miit.gov.cn/" title="粤ICP备20052180号" target="_blank" rel="noopener">粤ICP备20052180号</a>
+</footer>
+
+    <!-- scripts -->
+
+<script src="/scripts/main.js"></script>
+
+  </body>
+</html>

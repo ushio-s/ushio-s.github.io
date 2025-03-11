@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html  lang=zh-CN>
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  
+    
+    <link rel="shortcut icon" href="/images/favicon.ico ">
+    
+    
+    <link rel="icon" type="image/png" href="/images/favicon-android.png " sizes="192x192">
+    
+    
+    <link rel="apple-touch-icon" href="/images/favicon-apple.png " sizes="180x180">
+    
+  
+  <!-- title -->
+  <title>Shio&#39;s Psycology Life 绝妙的函数：随机打乱数组 </title>
+  <!-- styles -->
+  <!-- styles -->
+
+<link rel="stylesheet" href="/styles/global.css">
+
+  <!-- rss -->
+  
+  <link rel="alternate" href="/atom.xml" title="Shio&#39;s Psycology Life" type="application/atom+xml" />
+  
+<meta name="generator" content="Hexo 4.2.1"></head>
+  <body>
+    <header id="header">
+  
+  <nav class="menu menu--right">
+  
+    <a class="menu__item" href="/">主页</a>
+    <a class="menu__item" href="/archives/">归档</a>
+    <a class="menu__item" href="/categories/">专题</a>
+    <a class="menu__item" href="/tags/">标签</a>
+    <!-- <a class="menu__item" href="/">作品</a> -->
+    <!-- <a class="menu__item" href="/about/">关于</a> -->
+  </nav>
+</header>
+    <main>
+      <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header class="post__header">
+  <h1 class="post__title">绝妙的函数：随机打乱数组</h1>
+  
+  
+  <div class="post__meta">
+    
+<time class="post__date" datetime="2018-10-10T08:32:26.000Z" itemprop="datePublished">
+  
+  <i class="blogfont">&#xedff;</i>
+  
+  2018-10-10 16:32:26
+</time>
+
+    
+<div class="post__category">
+  <i class="blogfont">&#xe62d;</i>
+  <a class="category-link" href="/categories/Dev/">Dev</a>
+</div>
+  
+
+    
+<div class="post__tag">
+  <i class="blogfont">&#xe7ec;</i>
+  <a class="tag-link" href="/tags/Javascript/" rel="tag">Javascript</a>
+</div>
+
+
+    <div id="/2018-10-10/awesome-function-shuffle/" class="leancloud_visitors post__stat" data-flag-title="绝妙的函数：随机打乱数组">
+  <i class="blogfont">&#xe672;</i>
+  <span class="leancloud-visitors-count">loading...</span>
+</div>
+  </div>
+</header>
+  <aside class="post__aside">
+  <div class="post__actions">
+    <a id="backTop" class="post__top" href="javascript:">
+      <i class="blogfont">&#xe6b1;</i><!-- 回到顶部 -->
+    </a>
+    <!-- <a id="share" class="post__share" href="javascript:">
+      <i class="blogfont">&#xe6c1;</i>
+    </a> -->
+  </div>
+  <ol class="post__toc"><li class="post__toc-item post__toc-level-1"><a class="post__toc-link" href="#Awesome-Function-shuffle"><span class="post__toc-text">Awesome Function: shuffle</span></a><ol class="post__toc-child"><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#方法一：数组数据两两交换"><span class="post__toc-text">方法一：数组数据两两交换</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#方法二：首尾取元素随机插入"><span class="post__toc-text">方法二：首尾取元素随机插入</span></a></li><li class="post__toc-item post__toc-level-2"><a class="post__toc-link" href="#方法三：简单随机抽样重组"><span class="post__toc-text">方法三：简单随机抽样重组</span></a></li></ol></li></ol>
+</aside>
+  <div class="post__content" itemprop="articleBody">
+    <h1 id="Awesome-Function-shuffle"><a href="#Awesome-Function-shuffle" class="headerlink" title="Awesome Function: shuffle"></a>Awesome Function: shuffle</h1><p><a href="https://awesome-function.herokuapp.com/#shuffle" target="_blank" rel="noopener">在线演示</a></p>
+<p>原始数据：[‘红桃J’, ‘黑桃A’, ‘方块8’, ‘梅花6’, ‘黑桃K’, ‘红桃A’, ‘梅花9’, ‘梅花2’, ‘红桃K’, ‘黑桃5’]</p>
+<h2 id="方法一：数组数据两两交换"><a href="#方法一：数组数据两两交换" class="headerlink" title="方法一：数组数据两两交换"></a>方法一：数组数据两两交换</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> shuffle = <span class="function"><span class="params">array</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> count = array.length - <span class="number">1</span></span><br><span class="line">    <span class="keyword">while</span> (count) &#123;</span><br><span class="line">        <span class="keyword">let</span> index = <span class="built_in">Math</span>.floor(<span class="built_in">Math</span>.random() * (count + <span class="number">1</span>))</span><br><span class="line">        ;[array[index], array[count]] = [array[count], array[index]]</span><br><span class="line">        count--</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> array</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此方法在测试时踩了一个大坑，因为没有句尾分号，解构赋值的方括号与前一语句混在一起导致了报错，好一会检查不到错误之处，后来终于解决。</p>
+<h2 id="方法二：首尾取元素随机插入"><a href="#方法二：首尾取元素随机插入" class="headerlink" title="方法二：首尾取元素随机插入"></a>方法二：首尾取元素随机插入</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> shuffle2 = <span class="function"><span class="params">array</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> count = len = array.length</span><br><span class="line">    <span class="keyword">while</span> (count) &#123;</span><br><span class="line">        <span class="keyword">let</span> index = <span class="built_in">Math</span>.floor(<span class="built_in">Math</span>.random() * len)</span><br><span class="line">        array.splice(index, <span class="number">0</span>, array.pop())</span><br><span class="line">        count--</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> array</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">或</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> shuffle2 = <span class="function"><span class="params">array</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> count = len = array.length</span><br><span class="line">    <span class="keyword">while</span> (count) &#123;</span><br><span class="line">        <span class="keyword">let</span> index = <span class="built_in">Math</span>.floor(<span class="built_in">Math</span>.random() * len)</span><br><span class="line">        array.splice(index, <span class="number">0</span>, array.shift())</span><br><span class="line">        count--</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> array</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="方法三：简单随机抽样重组"><a href="#方法三：简单随机抽样重组" class="headerlink" title="方法三：简单随机抽样重组"></a>方法三：简单随机抽样重组</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> shuffle3 = <span class="function"><span class="params">array</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> tempArr = <span class="built_in">Array</span>.of(...array)</span><br><span class="line">    <span class="keyword">let</span> newArr = []</span><br><span class="line">    <span class="keyword">let</span> count = tempArr.length</span><br><span class="line">    <span class="keyword">while</span> (count) &#123;</span><br><span class="line">        <span class="keyword">let</span> index = <span class="built_in">Math</span>.floor(<span class="built_in">Math</span>.random() * (count - <span class="number">1</span>))</span><br><span class="line">        newArr.push(tempArr.splice(index, <span class="number">1</span>)[<span class="number">0</span>])</span><br><span class="line">        count--</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> newArr</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+  </div>
+  
+  <section id="comments" class="comments">
+    <div class="valine-comment"></div>
+<!--载入js，在</body>之前插入即可-->
+<!--Leancloud 操作库:-->
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<!--Valine 的核心代码库-->
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+<script>
+new Valine({
+    el: '.valine-comment',
+    app_id: 'DKiK5z8iNqcTBYteGEiuxyaP-gzGzoHsz',
+    app_key: '0SPtM0nGzQdGBXxpwbOSLTXV',
+    placeholder: '有什么话想告诉我？',
+    visitor: 'true',
+  })
+</script>
+  </section>
+  
+</article>
+    </main>
+    <footer id="footer">
+  Copyright &copy; 2025 Shio  
+  <a class="social-links" href="https://github.com/ushio-s"
+    ><i class="blogfont">&#xe6b7; </i></a
+  >
+  
+  <a class="social-links" href="mailto:jylzs369@163.com"
+    ><i class="blogfont">&#xe61a; </i></a
+  >
+  
+  <a class="social-links" href="https://www.jianshu.com/u/70c1c469e3b6"
+    ><i class="blogfont">&#xe6d7; </i></a
+  >
+  
+  <a class="social-links" href="https://www.zhihu.com/people/jylzs369"
+    ><i class="blogfont">&#xe606; </i></a
+  >
+  
+  <a class="social-links" href="/atom.xml"
+    ><i class="blogfont">&#xe640; </i></a
+  >
+    <a href="https://beian.miit.gov.cn/" title="粤ICP备20052180号" target="_blank" rel="noopener">粤ICP备20052180号</a>
+</footer>
+
+    <!-- scripts -->
+
+<script src="/scripts/main.js"></script>
+
+  </body>
+</html>
